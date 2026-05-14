@@ -1,74 +1,140 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DocPocket Pro</title>
-<meta name="theme-color" content="#2563eb">
-<meta name="description" content="Application médicale professionnelle">
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="style.css">
-<div class="app-container">
-<script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>DocPocket Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
-<header class="header">
-<img src="icons/logo.png" class="logo" alt="Logo">
-<h1>DocPocket Pro</h1>
-1
-</header>
-<main class="main-content">
-<div class="card">
-<h2>Informations Patient</h2>
-<input type="text" placeholder="Nom du patient" class="input-field 
-uppercase">
-<input type="text" placeholder="Prénom" class="input-field capitalize">
-<input type="date" class="input-field">
-</div>
-<div class="card">
-<h2>État médical</h2>
-<div class="radio-group">
-<label>
-<input type="radio" name="fit" value="fit">
-          Fit
-</label>
-<label>
-<input type="radio" name="fit" value="unfit">
-          Unfit
-</label>
-</div>
-<div class="checkbox-group">
-<label>
-<input type="checkbox">
-          Hypertension
-</label>
-<label>
-<input type="checkbox">
-          Diabète
-</label>
-</div>
-</div>
-<div class="card">
-<h2>Commentaires</h2>
-<textarea class="textarea-field" placeholder="Observations 
-médicales..."></textarea>
-</div>
-<button id="saveBtn" class="save-btn">
-2
-Sauvegarder
-</button>
-</main>
-</div>
-<script src="app.js"></script>
-<script>
-if ('serviceWorker' in navigator) {
-window.addEventListener('load', () => {
-navigator.serviceWorker.register('service-worker.js')
-.then(reg => console.log('Service Worker enregistré'))
-.catch(err => console.log(err));
-});
-}
-</script>
+
+    <div id="screen-activation" class="screen fixed inset-0 bg-white z-[200] flex flex-col items-center justify-center p-6 text-center hidden">
+        <div class="flex items-center gap-3 mb-6">
+            <img class="header-logo" src="logo.png" alt="Logo" onerror="this.style.display='none'">
+            <h1 class="text-3xl font-black text-blue-900 italic uppercase">DocPocket Pro</h1>
+        </div>
+        <input type="text" id="lic-name" placeholder="NOM DU MÉDECIN" class="input-auth">
+        <input type="text" id="lic-key" placeholder="CLÉ D'ACTIVATION" class="input-auth font-mono">
+        <button onclick="validerActivation()" class="btn-primary w-full max-w-sm py-4 shadow-xl">ACTIVER</button>
+    </div>
+
+    <div id="screen-config-pin" class="screen fixed inset-0 bg-white z-[190] flex flex-col items-center justify-center p-6 text-center hidden">
+        <h2 class="text-2xl font-black mb-6 uppercase text-slate-800">Sécurité PIN</h2>
+        <input type="password" id="cfg-pin" placeholder="NOUVEAU PIN" class="input-auth text-xl">
+        <input type="password" id="cfg-pin-confirm" placeholder="CONFIRMER PIN" class="input-auth text-xl">
+        <button onclick="enregistrerConfigSecu()" class="btn-success w-full max-w-sm py-4">SAUVEGARDER</button>
+    </div>
+
+    <div id="screen-lock" class="screen fixed inset-0 bg-slate-900 z-[180] flex flex-col items-center justify-center p-6 text-center text-white hidden">
+        <div class="text-5xl mb-6">🔐</div>
+        <input type="password" id="lock-pin-input" placeholder="CODE PIN" class="input-lock">
+        <button onclick="deverrouillerParPin()" class="btn-primary w-full max-w-xs py-4 text-xs font-bold uppercase">OUVRIR SESSION</button>
+    </div>
+
+    <div id="app-content" class="hidden">
+        <header class="bg-blue-800 text-white p-4 sticky top-0 shadow-lg z-30">
+            <div class="flex justify-between items-center max-w-2xl mx-auto">
+                <div class="flex items-center gap-2">
+                    <button onclick="retourListe()" class="p-2 bg-blue-900 rounded-xl">🏠</button>
+                    <img class="header-logo" src="logo.png" alt="L" onerror="this.style.display='none'">
+                    <h1 class="text-lg font-black italic uppercase tracking-tighter">DocPocket Pro</h1>
+                </div>
+                <button onclick="ouvrirNouveauPatient()" class="btn-white">Nouveau</button>
+            </div>
+        </header>
+
+        <div id="vue-liste" class="view max-w-2xl mx-auto p-4 pb-24">
+            <input type="text" id="search" onkeyup="afficherPatients()" placeholder="Rechercher un dossier..." class="search-bar">
+            <main id="patientList" class="space-y-4"></main>
+        </div>
+
+        <div id="vue-dossier" class="view max-w-2xl mx-auto p-4 pb-24 hidden">
+            <div class="patient-header">
+                <button onclick="supprimerPatientTotal()" class="btn-delete">Supprimer</button>
+                <h2 id="view-nom" class="text-2xl font-black text-blue-900 uppercase leading-tight">---</h2>
+                <p id="view-infos" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4"></p>
+                <div class="flex gap-3">
+                    <button onclick="ouvrirConsultation()" class="btn-primary flex-1 py-3 text-[10px] uppercase font-black">+ Visite</button>
+                    <button onclick="preparerExport()" class="btn-slate flex-1 py-3 text-[10px] uppercase font-black">PDF Complet</button>
+                </div>
+            </div>
+            <div id="historiqueList" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <div id="modal-consult" class="modal fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[150] p-4 flex items-center justify-center hidden">
+        <div class="bg-white rounded-[2.5rem] w-full max-w-lg p-6 shadow-2xl overflow-y-auto max-h-[95vh]">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-black text-blue-900 uppercase">Fiche d'Observation</h2>
+                <button onclick="fermerModal()" class="text-gray-400 text-3xl font-light">&times;</button>
+            </div>
+            
+            <div class="form-section mb-6">
+                <label>Nom et Prénom</label>
+                <input type="text" id="p-nom" class="input-clinical font-bold uppercase">
+                
+                <div class="grid grid-cols-3 gap-2 mt-3">
+                    <div><label>JJ</label><input type="number" id="p-jj" class="input-clinical text-center"></div>
+                    <div><label>MM</label><input type="number" id="p-mm" class="input-clinical text-center"></div>
+                    <div><label>AAAA</label><input type="number" id="p-aaaa" oninput="calculerAgeAuto(this.value)" class="input-clinical text-center font-bold text-blue-600"></div>
+                </div>
+
+                <div class="flex gap-2 items-end mt-3">
+                    <div class="w-16"><label>Âge</label><input type="text" id="p-age" readonly class="input-clinical bg-slate-100 text-center text-xs font-black"></div>
+                    <div class="flex-1"><label>Originaire de</label><input type="text" id="p-origine" class="input-clinical"></div>
+                </div>
+                
+                <div class="mt-3"><label>Téléphone</label><input type="tel" id="p-tel" class="input-clinical"></div>
+            </div>
+
+            <div class="space-y-4">
+                <div class="vital-signs bg-red-50 p-4 rounded-3xl border border-red-100">
+                    <label class="text-red-700 font-black">Paramètres Vitaux</label>
+                    <div class="grid grid-cols-2 gap-2 mt-2">
+                        <input type="text" id="c-ta" placeholder="TA (ex 12/8)" class="input-clinical bg-white text-center text-red-600 font-black">
+                        <input type="number" id="c-pouls" placeholder="Pouls" class="input-clinical bg-white text-center text-green-600 font-black">
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 mt-2">
+                        <input type="number" step="0.1" id="c-temp" placeholder="T°C" class="input-clinical bg-white text-center font-bold">
+                        <input type="number" id="c-fr" placeholder="FR" class="input-clinical bg-white text-center">
+                        <input type="number" id="c-sat" placeholder="Sat %" class="input-clinical bg-white text-center font-bold text-blue-600">
+                    </div>
+                </div>
+
+                <div><label>Motif de Consultation</label><textarea id="c-motif" class="textarea-clinical"></textarea></div>
+
+                <div class="space-y-3">
+                    <h3 class="section-divider">Examen Clinique</h3>
+                    <div><label>Plan Général</label><textarea id="c-general" class="textarea-clinical h-12"></textarea></div>
+                    <div><label>Hémodynamique</label><textarea id="c-hemo" class="textarea-clinical h-12"></textarea></div>
+                    <div><label>Respiratoire</label><textarea id="c-respi" class="textarea-clinical h-12"></textarea></div>
+                    <div><label>Abdominal</label><textarea id="c-abd" class="textarea-clinical h-12"></textarea></div>
+                    <div><label>Neurologique</label><textarea id="c-neuro" class="textarea-clinical h-12"></textarea></div>
+                    <div><label>Le reste de l'examen</label><textarea id="c-reste" class="textarea-clinical h-16"></textarea></div>
+                </div>
+
+                <div class="bg-green-50 p-4 rounded-3xl border border-green-100">
+                    <label class="text-green-700 font-black">Traitement fourni</label>
+                    <textarea id="c-traitement" class="textarea-clinical bg-white mt-2 h-24 font-medium"></textarea>
+                </div>
+
+                <button onclick="validerSaisie()" class="btn-primary w-full py-4 uppercase font-black shadow-xl">Enregistrer l'Observation</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js');
+            });
+        }
+    </script>
 </body>
 </html>
