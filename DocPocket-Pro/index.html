@@ -7,43 +7,42 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    
     <style>
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f4f7f9; margin: 0; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f9; margin: 0; }
         .hidden { display: none !important; }
-        .header-logo { width: 35px; height: 35px; border-radius: 8px; object-fit: contain; }
-        .input-auth { width: 100%; padding: 1rem; margin-bottom: 1rem; border: 2px solid #e2e8f0; border-radius: 1rem; background: #f8fafc; text-align: center; font-weight: bold; outline: none; }
-        .input-lock { width: 100%; max-width: 320px; padding: 1rem; border-radius: 1rem; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; text-align: center; font-size: 1.5rem; letter-spacing: 0.5rem; margin-bottom: 1.5rem; outline: none; }
-        .medical-card { border-left: 6px solid #2563eb; background: white; border-radius: 1.5rem; padding: 1.25rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .age-small { width: 65px !important; flex: none !important; }
+        .medical-card { border-left: 6px solid #2563eb; background: white; border-radius: 1.5rem; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         label { font-size: 0.65rem; font-weight: 800; color: #64748b; text-transform: uppercase; display: block; margin-bottom: 2px; margin-left: 5px; }
-        .textarea-clinical { width: 100%; padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 0.75rem; background: #f8fafc; font-size: 0.875rem; outline: none; resize: none; }
-        .input-clinical { width: 100%; padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 0.75rem; outline: none; }
+        input:focus, textarea:focus { border-color: #2563eb !important; outline: none; }
+        
+        /* Ajustement de la case âge : petite et alignée */
+        .age-input-container { width: 65px !important; flex: none !important; }
+        .header-logo { width: 35px; height: 35px; border-radius: 6px; object-fit: contain; }
     </style>
 </head>
 <body>
 
     <div id="screen-activation" class="fixed inset-0 bg-white z-[200] flex flex-col items-center justify-center p-6 text-center hidden">
-        <div class="flex items-center gap-3 mb-6">
-            <img class="header-logo" src="logo.png" alt="" onerror="this.style.display='none'">
+        <div class="flex items-center gap-2 mb-4">
+            <img class="header-logo" src="logo.png" alt="Logo" onerror="this.style.display='none'">
             <h1 class="text-3xl font-black text-blue-900 italic uppercase">DocPocket Pro</h1>
         </div>
-        <input type="text" id="lic-name" placeholder="NOM DU MÉDECIN" class="input-auth">
-        <input type="text" id="lic-key" placeholder="CLÉ D'ACTIVATION" class="input-auth font-mono">
+        <input type="text" id="lic-name" placeholder="NOM DU MÉDECIN" class="w-full max-w-sm p-4 mb-4 border-2 rounded-2xl uppercase font-bold text-center bg-slate-50">
+        <input type="text" id="lic-key" placeholder="CLÉ D'ACTIVATION" class="w-full max-w-sm p-4 mb-6 border-2 rounded-2xl font-mono text-center bg-slate-50">
         <button onclick="validerActivation()" class="w-full max-w-sm py-4 bg-blue-700 text-white rounded-2xl font-bold shadow-xl">ACTIVER</button>
     </div>
 
     <div id="screen-config-pin" class="fixed inset-0 bg-white z-[190] flex flex-col items-center justify-center p-6 text-center hidden">
-        <h2 class="text-2xl font-black mb-6 uppercase">Sécurité PIN</h2>
-        <input type="password" id="cfg-pin" placeholder="NOUVEAU PIN" class="input-auth">
-        <input type="password" id="cfg-pin-confirm" placeholder="CONFIRMER PIN" class="input-auth">
-        <button onclick="enregistrerConfigSecu()" class="w-full max-w-sm py-4 bg-green-600 text-white rounded-2xl font-bold uppercase">Sauvegarder</button>
+        <h2 class="text-2xl font-black mb-4 uppercase">Sécurité PIN</h2>
+        <input type="password" id="cfg-pin" placeholder="NOUVEAU PIN" class="w-full max-w-sm p-4 mb-4 border-2 rounded-2xl text-center text-xl font-bold bg-slate-50">
+        <input type="password" id="cfg-pin-confirm" placeholder="CONFIRMER PIN" class="w-full max-w-sm p-4 mb-6 border-2 rounded-2xl text-center text-xl font-bold bg-slate-50">
+        <button onclick="enregistrerConfigSecu()" class="w-full max-w-sm py-4 bg-green-600 text-white rounded-2xl font-bold uppercase shadow-lg">SAUVEGARDER</button>
     </div>
 
     <div id="screen-lock" class="fixed inset-0 bg-slate-900 z-[180] flex flex-col items-center justify-center p-6 text-center text-white hidden">
         <div class="text-5xl mb-6">🔐</div>
-        <input type="password" id="lock-pin-input" placeholder="CODE PIN" class="input-lock">
-        <button onclick="deverrouillerParPin()" class="w-full max-w-xs py-4 bg-blue-600 text-white rounded-2xl font-bold uppercase text-xs">Ouvrir Session</button>
+        <label class="text-white mb-2">CODE PIN REQUIS</label>
+        <input type="password" id="lock-pin-input" placeholder="••••" class="w-full max-w-xs p-4 rounded-2xl bg-white/10 border border-white/20 text-white text-center text-2xl font-bold tracking-[0.5em] mb-6 outline-none">
+        <button onclick="deverrouillerParPin()" class="w-full max-w-xs py-4 bg-blue-600 text-white rounded-2xl font-bold uppercase text-xs">OUVRIR SESSION</button>
     </div>
 
     <div id="app-content" class="hidden">
@@ -51,7 +50,7 @@
             <div class="flex justify-between items-center max-w-2xl mx-auto">
                 <div class="flex items-center gap-2">
                     <button onclick="retourListe()" class="p-2 bg-blue-900 rounded-xl mr-1">🏠</button>
-                    <img class="header-logo" src="logo.png" alt="" onerror="this.style.display='none'">
+                    <img class="header-logo" src="logo.png" alt="L" onerror="this.style.display='none'">
                     <h1 class="text-lg font-black italic uppercase tracking-tighter">DocPocket Pro</h1>
                 </div>
                 <button onclick="ouvrirNouveauPatient()" class="bg-white text-blue-800 px-4 py-2 rounded-full text-[10px] font-black uppercase">Nouveau</button>
@@ -59,7 +58,7 @@
         </header>
 
         <div id="vue-liste" class="max-w-2xl mx-auto p-4 pb-24">
-            <input type="text" id="search" onkeyup="afficherPatients()" placeholder="Rechercher un dossier..." class="w-full p-4 rounded-2xl border-none shadow-sm text-lg mb-6 outline-none bg-white">
+            <input type="text" id="search" onkeyup="afficherPatients()" placeholder="Rechercher par nom..." class="w-full p-4 rounded-2xl border-none shadow-sm text-lg mb-6 outline-none">
             <main id="patientList" class="space-y-4"></main>
         </div>
 
@@ -67,10 +66,10 @@
             <div class="bg-white p-6 rounded-[2rem] shadow-md mb-6 relative border border-slate-100">
                 <button onclick="supprimerPatientTotal()" class="absolute top-4 right-4 text-red-500 text-[9px] font-black uppercase bg-red-50 px-2 py-1 rounded">Supprimer</button>
                 <h2 id="view-nom" class="text-2xl font-black text-blue-900 uppercase mb-1 leading-tight">---</h2>
-                <p id="view-infos" class="text-[10px] font-bold text-slate-400 tracking-widest mb-4"></p>
+                <p id="view-infos" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4"></p>
                 <div class="flex gap-3">
-                    <button onclick="ouvrirConsultation()" class="flex-1 py-3 bg-blue-700 text-white rounded-xl font-black text-[10px] uppercase">+ Visite</button>
-                    <button onclick="preparerExport()" class="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-black text-[10px] uppercase">PDF</button>
+                    <button onclick="ouvrirConsultation()" class="flex-1 py-3 bg-blue-700 text-white rounded-xl font-black text-[10px] uppercase shadow-lg">+ Nouvelle Visite</button>
+                    <button onclick="preparerExport()" class="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-black text-[10px] uppercase">PDF Complet</button>
                 </div>
             </div>
             <div id="historiqueList" class="space-y-4"></div>
@@ -84,49 +83,61 @@
                 <button onclick="fermerModal()" class="text-gray-400 text-3xl font-light">&times;</button>
             </div>
             
-            <div class="space-y-3 mb-6 bg-slate-50 p-4 rounded-3xl">
-                <label>Nom et Prénom</label>
-                <input type="text" id="p-nom" class="input-clinical font-bold uppercase bg-white">
+            <div id="form-patient-info" class="space-y-3 mb-6 bg-slate-50 p-4 rounded-3xl">
+                <div>
+                    <label>Nom et Prénom</label>
+                    <input type="text" id="p-nom" class="w-full p-3 border rounded-xl font-bold uppercase">
+                </div>
+                
                 <div class="grid grid-cols-3 gap-2">
-                    <div><label>JJ</label><input type="number" id="p-jj" class="input-clinical text-center bg-white"></div>
-                    <div><label>MM</label><input type="number" id="p-mm" class="input-clinical text-center bg-white"></div>
-                    <div><label>AAAA</label><input type="number" id="p-aaaa" oninput="calculerAgeAuto(this.value)" class="input-clinical text-center font-bold text-blue-600 bg-white"></div>
+                    <div><label>JJ</label><input type="number" id="p-jj" oninput="if(this.value.length>=2) document.getElementById('p-mm').focus()" class="w-full p-3 border rounded-xl text-center"></div>
+                    <div><label>MM</label><input type="number" id="p-mm" oninput="if(this.value.length>=2) document.getElementById('p-aaaa').focus()" class="w-full p-3 border rounded-xl text-center"></div>
+                    <div><label>AAAA</label><input type="number" id="p-aaaa" oninput="calculerAgeAuto(this.value)" class="w-full p-3 border rounded-xl text-center font-bold text-blue-600"></div>
                 </div>
+
                 <div class="flex gap-2 items-end">
-                    <div class="age-small"><label>Âge</label><input type="text" id="p-age" readonly class="input-clinical bg-slate-100 text-center text-xs font-black"></div>
-                    <div class="flex-1"><label>Originaire de</label><input type="text" id="p-origine" class="input-clinical bg-white"></div>
+                    <div class="age-input-container">
+                        <label>Âge</label>
+                        <input type="text" id="p-age" readonly class="w-full p-3 bg-slate-100 border-none rounded-xl font-black text-blue-800 text-center text-xs">
+                    </div>
+                    <div class="flex-1">
+                        <label>Originaire de</label>
+                        <input type="text" id="p-origine" class="w-full p-3 border rounded-xl">
+                    </div>
                 </div>
-                <label>Téléphone</label><input type="tel" id="p-tel" class="input-clinical bg-white">
+                
+                <label>Téléphone</label>
+                <input type="tel" id="p-tel" class="w-full p-3 border rounded-xl">
             </div>
 
             <div class="space-y-4">
                 <div class="bg-red-50 p-4 rounded-3xl border border-red-100">
-                    <label class="text-red-700 font-black">Paramètres Vitaux</label>
+                    <label class="text-red-700">Paramètres Vitaux</label>
                     <div class="grid grid-cols-2 gap-2 mt-2">
-                        <input type="text" id="c-ta" placeholder="TA (ex 12/8)" class="input-clinical bg-white text-center text-red-600 font-black">
-                        <input type="number" id="c-pouls" placeholder="Pouls" class="input-clinical bg-white text-center text-green-600 font-black">
+                        <input type="text" id="c-ta" placeholder="TA (ex 12/8)" class="p-3 bg-white border rounded-xl font-black text-center text-red-600">
+                        <input type="number" id="c-pouls" placeholder="Pouls" class="p-3 bg-white border rounded-xl font-black text-center text-green-600">
                     </div>
                     <div class="grid grid-cols-3 gap-2 mt-2">
-                        <input type="number" step="0.1" id="c-temp" placeholder="T°C" class="input-clinical bg-white text-center">
-                        <input type="number" id="c-fr" placeholder="FR" class="input-clinical bg-white text-center">
-                        <input type="number" id="c-sat" placeholder="Sat %" class="input-clinical bg-white text-center">
+                        <input type="number" step="0.1" id="c-temp" placeholder="T°C" class="p-3 bg-white border rounded-xl text-center">
+                        <input type="number" id="c-fr" placeholder="FR" class="p-3 bg-white border rounded-xl text-center">
+                        <input type="number" id="c-sat" placeholder="Sat %" class="p-3 bg-white border rounded-xl text-center">
                     </div>
                 </div>
-                <div><label>Motif</label><textarea id="c-motif" class="textarea-clinical bg-white"></textarea></div>
+                <div><label>Motif de Consultation</label><textarea id="c-motif" class="w-full p-3 border rounded-xl h-16 bg-white text-sm"></textarea></div>
                 <div class="space-y-2">
-                    <label>Examen</label>
-                    <textarea id="c-general" placeholder="Plan Général" class="textarea-clinical h-10 bg-white"></textarea>
-                    <textarea id="c-hemo" placeholder="Hémodynamique" class="textarea-clinical h-10 bg-white"></textarea>
-                    <textarea id="c-respi" placeholder="Respiratoire" class="textarea-clinical h-10 bg-white"></textarea>
-                    <textarea id="c-abd" placeholder="Abdominal" class="textarea-clinical h-10 bg-white"></textarea>
-                    <textarea id="c-neuro" placeholder="Neurologique" class="textarea-clinical h-10 bg-white"></textarea>
-                    <textarea id="c-reste" placeholder="Reste de l'examen" class="textarea-clinical h-16 bg-white"></textarea>
+                    <label>Examen Clinique</label>
+                    <textarea id="c-general" placeholder="Plan Général" class="w-full p-3 border rounded-xl h-12 bg-white text-sm"></textarea>
+                    <textarea id="c-hemo" placeholder="Hémodynamique" class="w-full p-3 border rounded-xl h-12 bg-white text-sm"></textarea>
+                    <textarea id="c-respi" placeholder="Respiratoire" class="w-full p-3 border rounded-xl h-12 bg-white text-sm"></textarea>
+                    <textarea id="c-abd" placeholder="Abdominal" class="w-full p-3 border rounded-xl h-12 bg-white text-sm"></textarea>
+                    <textarea id="c-neuro" placeholder="Neurologique" class="w-full p-3 border rounded-xl h-12 bg-white text-sm"></textarea>
+                    <textarea id="c-reste" placeholder="Reste de l'examen" class="w-full p-3 border rounded-xl h-16 bg-white text-sm"></textarea>
                 </div>
-                <div class="bg-green-50 p-4 rounded-3xl">
-                    <label class="text-green-700 font-black">Traitement</label>
-                    <textarea id="c-traitement" class="textarea-clinical bg-white h-20"></textarea>
+                <div class="bg-green-50 p-4 rounded-3xl border border-green-100">
+                    <label class="text-green-700">Traitement fourni</label>
+                    <textarea id="c-traitement" class="w-full p-3 mt-2 bg-white border rounded-xl h-24 font-medium text-sm"></textarea>
                 </div>
-                <button onclick="validerSaisie()" class="w-full py-4 bg-blue-800 text-white rounded-2xl font-black uppercase shadow-xl">Enregistrer</button>
+                <button onclick="validerSaisie()" class="w-full py-4 bg-blue-800 text-white rounded-2xl font-black uppercase shadow-xl">ENREGISTRER</button>
             </div>
         </div>
     </div>
@@ -138,8 +149,10 @@
         let patientActuelId = null;
 
         window.onload = () => {
-            if(!localStorage.getItem('doc_license_active')) document.getElementById('screen-activation').classList.remove('hidden');
-            else if(!localStorage.getItem('doc_security_cfg')) document.getElementById('screen-config-pin').classList.remove('hidden');
+            const license = localStorage.getItem('doc_license_active');
+            const security = localStorage.getItem('doc_security_cfg');
+            if(!license) document.getElementById('screen-activation').classList.remove('hidden');
+            else if(!security) document.getElementById('screen-config-pin').classList.remove('hidden');
             else document.getElementById('screen-lock').classList.remove('hidden');
         };
 
@@ -168,11 +181,14 @@
                 document.getElementById('screen-lock').classList.add('hidden');
                 document.getElementById('app-content').classList.remove('hidden');
                 chargerDB();
-            } else { alert("PIN Incorrect."); document.getElementById('lock-pin-input').value = ""; }
+            } else {
+                alert("PIN Incorrect.");
+                document.getElementById('lock-pin-input').value = "";
+            }
         }
 
         function chargerDB() {
-            const stored = localStorage.getItem('doc_patients_vfinal');
+            const stored = localStorage.getItem('doc_patients_db_final_v1');
             if (stored) {
                 try {
                     const bytes = CryptoJS.AES.decrypt(stored, MASTER_DB_KEY);
@@ -183,10 +199,15 @@
         }
 
         function sauvegarderDB() {
-            localStorage.setItem('doc_patients_vfinal', CryptoJS.AES.encrypt(JSON.stringify(patients), MASTER_DB_KEY).toString());
+            localStorage.setItem('doc_patients_db_final_v1', CryptoJS.AES.encrypt(JSON.stringify(patients), MASTER_DB_KEY).toString());
         }
 
-        function calculerAgeAuto(v) { if(v.length === 4) document.getElementById('p-age').value = (new Date().getFullYear() - parseInt(v)) + " ANS"; }
+        function calculerAgeAuto(v) { 
+            if(v.length === 4) {
+                const age = (new Date().getFullYear() - parseInt(v));
+                document.getElementById('p-age').value = age + " ANS";
+            }
+        }
 
         function validerSaisie() {
             const dataV = {
@@ -200,15 +221,15 @@
                 traitement: document.getElementById('c-traitement').value
             };
             if (patientActuelId === null) {
-                const nom = document.getElementById('p-nom').value.toUpperCase();
-                if(!nom) return alert("Nom requis.");
-                patients.unshift({
+                const nom = document.getElementById('p-nom').value.trim().toUpperCase();
+                if(!nom) return alert("Nom et Prénom requis.");
+                const p = {
                     id: Date.now(), nom,
                     dob: `${document.getElementById('p-jj').value}/${document.getElementById('p-mm').value}/${document.getElementById('p-aaaa').value}`,
                     origine: document.getElementById('p-origine').value, age: document.getElementById('p-age').value, tel: document.getElementById('p-tel').value,
                     visites: [dataV]
-                });
-                patientActuelId = patients[0].id;
+                };
+                patients.unshift(p); patientActuelId = p.id;
             } else {
                 patients.find(x => x.id === patientActuelId).visites.unshift(dataV);
             }
@@ -229,12 +250,12 @@
             document.getElementById('vue-liste').classList.add('hidden');
             document.getElementById('vue-dossier').classList.remove('hidden');
             document.getElementById('view-nom').innerText = p.nom;
-            document.getElementById('view-infos').innerText = `Né le ${p.dob} (${p.age}) • ${p.origine}`;
+            document.getElementById('view-infos').innerText = `NÉ LE ${p.dob} (${p.age}) • ORIGINE: ${p.origine}`;
             document.getElementById('historiqueList').innerHTML = p.visites.map(v => `
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-                    <span class="text-blue-600 font-black text-[9px] uppercase">${v.date}</span>
-                    <p class="text-[10px] font-bold text-red-600 my-1">TA: ${v.ta} | P: ${v.pouls} | Sat: ${v.sat}%</p>
-                    <p class="text-xs italic text-slate-600 line-clamp-2"><b>Motif:</b> ${v.motif}</p>
+                <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
+                    <span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-[9px] font-black uppercase">${v.date}</span>
+                    <p class="text-[10px] font-bold text-red-600 my-2">TA: ${v.ta} | P: ${v.pouls} | T: ${v.temp}°C | Sat: ${v.sat}%</p>
+                    <p class="text-xs italic text-slate-600"><b>Motif:</b> ${v.motif}</p>
                 </div>`).join('');
         }
 
@@ -242,16 +263,17 @@
             const p = patients.find(x => x.id === patientActuelId);
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            doc.setFontSize(16); doc.text(`DOSSIER : ${p.nom}`, 20, 20);
+            doc.setFontSize(16); doc.text(`DOSSIER MÉDICAL : ${p.nom}`, 20, 20);
             doc.setFontSize(10); doc.text(`Né le: ${p.dob} (${p.age}) | Origine: ${p.origine} | Tél: ${p.tel}`, 20, 30);
             let y = 45;
             p.visites.forEach(v => {
-                if(y > 240) { doc.addPage(); y = 20; }
+                if(y > 220) { doc.addPage(); y = 20; }
                 doc.setFont(undefined, 'bold'); doc.text(`VISITE DU ${v.date}`, 20, y); y += 7;
                 doc.setFont(undefined, 'normal');
-                const txt = `Constantes: TA ${v.ta}, P ${v.pouls}, T ${v.temp}, FR ${v.fr}, Sat ${v.sat}%\nMotif: ${v.motif}\nExamen: Gen: ${v.general}, Hem: ${v.hemo}, Res: ${v.respi}, Abd: ${v.abd}, Neu: ${v.neuro}, Reste: ${v.reste}\nTraitement: ${v.traitement}`;
-                const split = doc.splitTextToSize(txt, 170);
-                doc.text(split, 20, y); y += (split.length * 6) + 10;
+                const detail = `PARAMÈTRES : TA ${v.ta} | P ${v.pouls} | T ${v.temp}°C | FR ${v.fr} | Sat ${v.sat}%\nMotif: ${v.motif}\nExamen: Gen: ${v.general} | Hem: ${v.hemo} | Res: ${v.respi} | Abd: ${v.abd} | Neu: ${v.neuro} | Reste: ${v.reste}\nTraitement: ${v.traitement}`;
+                const split = doc.splitTextToSize(detail, 170);
+                doc.text(split, 20, y);
+                y += (split.length * 6) + 10;
             });
             doc.save(`DocPocket_Pro_${p.nom}.pdf`);
         }
@@ -259,7 +281,7 @@
         function retourListe() { patientActuelId=null; document.getElementById('vue-liste').classList.remove('hidden'); document.getElementById('vue-dossier').classList.add('hidden'); afficherPatients(); }
         function ouvrirNouveauPatient() { patientActuelId=null; document.getElementById('form-patient-info').classList.remove('hidden'); document.getElementById('modal-consult').classList.remove('hidden'); }
         function fermerModal() { document.getElementById('modal-consult').classList.add('hidden'); }
-        function supprimerPatientTotal() { if(confirm("Supprimer définitivement ?")) { patients=patients.filter(p=>p.id!==patientActuelId); sauvegarderDB(); retourListe(); } }
+        function supprimerPatientTotal() { if(confirm("Supprimer ce dossier ?")) { patients=patients.filter(p=>p.id!==patientActuelId); sauvegarderDB(); retourListe(); } }
     </script>
 </body>
 </html>
