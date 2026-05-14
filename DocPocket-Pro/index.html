@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DocPocket Pro</title>
+<meta name="theme-color" content="#2563eb">
+<meta name="description" content="Application médicale professionnelle">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+<div class="app-container">
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<header class="header">
+<img src="icons/logo.png" class="logo" alt="Logo">
+<h1>DocPocket Pro</h1>
+1
+</header>
+<main class="main-content">
+<div class="card">
+<h2>Informations Patient</h2>
+<input type="text" placeholder="Nom du patient" class="input-field 
+uppercase">
+<input type="text" placeholder="Prénom" class="input-field capitalize">
+<input type="date" class="input-field">
+</div>
+<div class="card">
+<h2>État médical</h2>
+<div class="radio-group">
+<label>
+<input type="radio" name="fit" value="fit">
+          Fit
+</label>
+<label>
+<input type="radio" name="fit" value="unfit">
+          Unfit
+</label>
+</div>
+<div class="checkbox-group">
+<label>
+<input type="checkbox">
+          Hypertension
+</label>
+<label>
+<input type="checkbox">
+          Diabète
+</label>
+</div>
+</div>
+<div class="card">
+<h2>Commentaires</h2>
+<textarea class="textarea-field" placeholder="Observations 
+médicales..."></textarea>
+</div>
+<button id="saveBtn" class="save-btn">
+2
+Sauvegarder
+</button>
+</main>
+</div>
+<script src="app.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+window.addEventListener('load', () => {
+navigator.serviceWorker.register('service-worker.js')
+.then(reg => console.log('Service Worker enregistré'))
+.catch(err => console.log(err));
+});
+}
+</script>
+</body>
+</html>
