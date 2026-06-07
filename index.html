@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DocPocket Pro</title>
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#003399">
+
+    <link rel="manifest" href="manifest.json">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: rgb(0, 51, 153); --primary-hover: rgb(0, 35, 110);
+            --secondary-color: #001133; --bg-color: #F4F7F6; --card-bg: #FFFFFF;
+            --text-main: #333333; --border-color: #E0E0E0; --danger-color: #D32F2F;
+            --success-color: #2E7D32; --radius: 8px; --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.5; overflow-x: hidden; }
+        h1, h2, h3, h4 { color: var(--secondary-color); }
+        .hidden { display: none !important; }
+
+        /* TOAST NOTIFICATION */
+        #toast-notification { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: var(--primary-color); color: white; padding: 1rem 2rem; border-radius: 30px; box-shadow: 0 4px 15px rgba(0, 51, 153, 0.4); font-weight: bold; font-size: 1.1rem; z-index: 10000; text-align: center; width: max-content; max-width: 90%; opacity: 1; transition: opacity 0.5s ease-in-out; }
+        #toast-notification.fade-out { opacity: 0; pointer-events: none; }
+
+        /* AUTH UI */
+        #auth-view { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--primary-color); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 1rem; }
+        .auth-card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 400px; text-align: center; }
+        .auth-logo { width: 70px; height: 70px; object-fit: contain; margin-bottom: 1rem; border-radius: var(--radius); }
+        .auth-card h2 { margin-bottom: 1rem; color: var(--primary-color); font-size: 1.3rem; }
+        .pin-display { font-size: 2rem; letter-spacing: 0.5rem; margin: 0.5rem 0; height: 40px; color: var(--secondary-color); font-weight: bold; }
+        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 1rem; max-width: 250px; margin-left: auto; margin-right: auto; }
+        .key-btn { background: var(--bg-color); border: none; border-radius: 50%; width: 55px; height: 55px; font-size: 1.3rem; font-weight: bold; color: var(--secondary-color); cursor: pointer; margin: 0 auto; transition: background 0.1s; }
+        .key-btn:active { background: #d0d0d0; }
+        .bio-btn { background: transparent; border: 2px solid var(--primary-color); color: var(--primary-color); padding: 0.7rem; border-radius: var(--radius); width: 100%; font-size: 0.95rem; font-weight: bold; cursor: pointer; margin-top: 1rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+        /* HEADER CENTRÉ */
+        #app-ui { background-color: var(--bg-color); min-height: 100vh; position: relative; z-index: 1; }
+        .app-header { background-color: var(--primary-color); color: white; padding: 0.8rem 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .header-left, .header-right { flex: 1; display: flex; align-items: center; }
+        .header-right { justify-content: flex-end; gap: 0.5rem; }
+        .logo-container { flex: 2; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .header-logo { width: 35px; height: 35px; object-fit: contain; border-radius: 6px; background: white; padding: 2px; }
+        .app-header h1 { font-size: 1.2rem; margin: 0; white-space: nowrap; }
+        .btn-refresh { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 4px; cursor: pointer; }
+
+        /* CONTAINERS & BUTTONS */
+        .container { max-width: 1200px; margin: 1rem auto; padding: 0 0.5rem; }
+        .btn { background-color: var(--primary-color); color: white; border: none; padding: 0.6rem 1rem; border-radius: var(--radius); cursor: pointer; font-size: 0.95rem; font-weight: 500; display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; transition: 0.2s; width: 100%;}
+        .btn:hover { background-color: var(--primary-hover); }
+        .btn-outline { background-color: transparent; color: var(--primary-color); border: 1px solid var(--primary-color); }
+        .btn-outline:hover { background-color: var(--primary-color); color: white; }
+        .btn-danger { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); }
+        .btn-danger:hover { background-color: var(--danger-color); color: white; }
+        .btn-success { background-color: var(--success-color); color: white; border: none; }
+        
+        /* FORMULAIRES */
+        .form-group { margin-bottom: 0.8rem; display: flex; flex-direction: column; width: 100%; }
+        .form-group label { font-weight: 600; margin-bottom: 0.2rem; color: var(--secondary-color); font-size: 0.85rem; }
+        .form-control { padding: 0.6rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.95rem; background-color: #fafafa; width: 100%; box-sizing: border-box; }
+        textarea.form-control { resize: vertical; min-height: 60px; }
+        .dashboard-controls { display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1.5rem; }
+        .visits-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 2rem; }
+        
+        /* ACCORDÉON PATIENT */
+        .patient-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); border-left: 5px solid var(--primary-color); overflow: hidden; margin-bottom: 15px; }
+        .patient-card-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #fff; transition: background 0.2s; }
+        .patient-card-header:hover { background: #f0f4f8; }
+        .patient-history-drawer { display: none; padding: 15px; background: #F4F7F6; border-top: 1px solid #E0E0E0; }
+        .consultation-item { background: #FFFFFF; padding: 12px; border-radius: 6px; border: 1px solid #E0E0E0; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+
+        .backup-panel { background: #eef5f6; padding: 1rem; border-radius: var(--radius); border: 1px dashed var(--primary-color); display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1rem; }
+        .backup-actions { display: flex; gap: 0.5rem; width: 100%; flex-wrap: wrap;}
+        
+        .form-section { background: var(--card-bg); padding: 1rem; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 1rem; }
+        .form-section h2 { border-bottom: 2px solid var(--bg-color); padding-bottom: 0.4rem; margin-bottom: 1rem; font-size: 1.1rem; }
+        .grid-2, .grid-3 { display: grid; gap: 0.5rem; grid-template-columns: 1fr; }
+        .form-actions { display: flex; flex-direction: column; gap: 0.5rem; position: sticky; bottom: 0; background: var(--bg-color); padding: 0.8rem 0.5rem; border-top: 1px solid var(--border-color); z-index: 10; margin-left: -0.5rem; margin-right: -0.5rem; }
+
+        /* SCANNER & MODAL */
+        .preview-img { width: 100%; max-height: 250px; object-fit: contain; border-radius: 4px; margin-bottom: 10px; background: #000; }
+        .scan-item { display: flex; align-items: center; justify-content: space-between; background: #fdfdfd; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 8px; }
+        .modal { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; flex-direction: column; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box; }
+        .modal-header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 15px; color: white; position: absolute; top: 0; left: 0; background: linear-gradient(rgba(0,0,0,0.7), transparent); }
+        .modal-content { max-width: 100%; max-height: 85vh; object-fit: contain; border-radius: 4px; }
+        .close-modal { font-size: 2.5rem; color: white; cursor: pointer; padding: 0 10px; }
+
+        @media (min-width: 768px) {
+            .container { padding: 0 1rem; margin: 2rem auto; }
+            .dashboard-controls { flex-direction: row; }
+            .search-bar { width: auto; flex: 1; max-width: 400px; }
+            .visits-grid { grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; }
+            .backup-panel { flex-direction: row; justify-content: space-between; align-items: center; padding: 1.5rem; }
+            .backup-actions { width: auto; flex-wrap: nowrap; }
+            .form-section { padding: 2rem; margin-bottom: 2rem; }
+            .grid-2 { grid-template-columns: 1fr 1fr; }
+            .grid-3 { grid-template-columns: repeat(3, 1fr); }
+            .form-actions { flex-direction: row; justify-content: flex-end; position: static; background: transparent; border: none;}
+            .btn { width: auto; }
+            .app-header h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="toast-notification" class="hidden">👋 Bonjour <span id="toast-doc-name"></span></div>
+
+    <div id="auth-view" class="hidden">
+        <div class="auth-card">
+            <img class="auth-logo" src="icon-512.png?v=3" alt="Logo Cabinet" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%23003399\'><path d=\'M19 10.5h-5.5V5h-3v5.5H5v3h5.5V19h3v-5.5H19v-3z\'/></svg>'">
+            <div id="auth-license-section" class="hidden">
+                <h2>Activation DocPocket</h2>
+                <input type="text" id="license-key" class="form-control" placeholder="DOCPRO-xxxxxx-2026" style="text-align: center;">
+                <button class="btn" style="width:100%; margin-top: 10px;" onclick="auth.checkLicense()">Activer ma licence</button>
+            </div>
+            <div id="auth-pin-section" class="hidden">
+                <h2 id="pin-title">Entrez votre Code PIN</h2>
+                <div class="pin-display" id="pin-dots"></div>
+                <div class="keypad">
+                    <button class="key-btn" onclick="auth.pressPin(1)">1</button><button class="key-btn" onclick="auth.pressPin(2)">2</button><button class="key-btn" onclick="auth.pressPin(3)">3</button>
+                    <button class="key-btn" onclick="auth.pressPin(4)">4</button><button class="key-btn" onclick="auth.pressPin(5)">5</button><button class="key-btn" onclick="auth.pressPin(6)">6</button>
+                    <button class="key-btn" onclick="auth.pressPin(7)">7</button><button class="key-btn" onclick="auth.pressPin(8)">8</button><button class="key-btn" onclick="auth.pressPin(9)">9</button>
+                    <button class="key-btn" onclick="auth.clearPin()">C</button><button class="key-btn" onclick="auth.pressPin(0)">0</button><button class="key-btn" onclick="auth.submitPin()">OK</button>
+                </div>
+                <button id="btn-biometric" class="bio-btn hidden" onclick="auth.useBiometrics()">🔒 Empreinte / Face ID</button>
+                <button id="btn-cancel-change" class="btn btn-outline hidden" style="width:100%; margin-top:10px;" onclick="auth.cancelChangePin()">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-ui" class="hidden">
+        <header class="app-header">
+            <div class="header-left"></div>
+            <div class="logo-container">
+                <img class="header-logo" id="main-app-logo" src="icon-512.png?v=3" alt="Logo" onerror="this.style.display='none'">
+                <h1 id="app-title-display">DocPocket Pro</h1>
+            </div>
+            <div class="header-right">
+                <button class="btn btn-refresh" onclick="app.purgeCacheAndReload()" title="Rafraîchir">🔄</button>
+                <button class="btn btn-refresh" onclick="auth.lockApp()" title="Verrouiller" style="border-color: #ff9999; color: #ff9999;">🔒</button>
+            </div>
+        </header>
+
+        <div class="container">
+            <main id="dashboard-view">
+                <div id="pwa-install-banner" class="hidden" style="background: #e3f2fd; padding: 1rem; border-radius: var(--radius); margin-bottom: 1.5rem; text-align: center; border: 1px solid #90caf9;">
+                    <p style="margin-bottom: 0.5rem; font-weight: bold; color: #1565c0;">📱 Profitez de l'expérience plein écran !</p>
+                    <button class="btn" onclick="app.installPWA()">Installer l'application</button>
+                </div>
+
+                <div class="dashboard-controls">
+                    <button class="btn btn-success" onclick="app.showForm()" style="font-size: 1.1rem; padding: 0.8rem;">➕ Nouveau Patient</button>
+                    <input type="text" id="search-input" class="form-control search-bar" placeholder="Rechercher un patient ou un document...">
+                </div>
+                
+                <div id="visits-list" class="visits-grid"></div>
+
+                <div class="backup-panel">
+                    <div><strong>🎨 Personnalisation (En-tête & Cachet)</strong><p>Configurez les logos officiels.</p></div>
+                    <div style="display:flex; flex-direction:column; gap:10px; width:100%; max-width:350px;">
+                        <div class="backup-actions"><button class="btn btn-outline" style="flex:1;" onclick="document.getElementById('personal-upload').click()">👨‍⚕️ Logo Personnel</button><input type="file" id="personal-upload" accept="image/*" style="display:none" onchange="app.handleImageUpload(event, 'docpocket_personal_logo', 'Logo personnel ajouté')"><button class="btn btn-danger" style="flex:none; padding:0 15px;" onclick="app.removeImage('docpocket_personal_logo', 'Effacer ?')">✖</button></div>
+                        <div class="backup-actions"><button class="btn btn-outline" style="flex:1;" onclick="document.getElementById('logo-upload').click()">🖼️ Logo Application</button><input type="file" id="logo-upload" accept="image/*" style="display:none" onchange="app.handleImageUpload(event, 'docpocket_custom_logo', 'Logo app mis à jour')"><button class="btn btn-danger" style="flex:none; padding:0 15px;" onclick="app.removeImage('docpocket_custom_logo', 'Effacer ?')">✖</button></div>
+                        <div class="backup-actions"><button class="btn btn-outline" style="flex:1;" onclick="document.getElementById('partner-upload').click()">🤝 Logo Partenaire</button><input type="file" id="partner-upload" accept="image/*" style="display:none" onchange="app.handleImageUpload(event, 'docpocket_partner_logo', 'Logo partenaire ajouté')"><button class="btn btn-danger" style="flex:none; padding:0 15px;" onclick="app.removeImage('docpocket_partner_logo', 'Effacer ?')">✖</button></div>
+                        <div class="backup-actions"><button class="btn btn-outline" style="flex:1;" onclick="document.getElementById('sign-upload').click()">🖋️ Signature & Cachet</button><input type="file" id="sign-upload" accept="image/*" style="display:none" onchange="app.handleImageUpload(event, 'docpocket_custom_signature', 'Cachet enregistré')"><button class="btn btn-danger" style="flex:none; padding:0 15px;" onclick="app.removeImage('docpocket_custom_signature', 'Effacer ?')">✖</button></div>
+                    </div>
+                </div>
+
+                <div class="backup-panel">
+                    <div><strong>📊 Bilan Mensuel Clinique</strong></div>
+                    <div class="backup-actions">
+                        <input type="month" id="report-month" class="form-control" style="flex:1; padding: 0.5rem;">
+                        <button class="btn" onclick="app.generateMonthlyReport(event)" style="flex:1;">Générer le PDF</button>
+                    </div>
+                </div>
+
+                <div class="backup-panel">
+                    <div><strong>⚙️ Sync & Sécurité</strong></div>
+                    <div class="backup-actions">
+                        <button class="btn btn-outline" onclick="app.exportBackup()">📥 Exporter la base</button>
+                        <input type="file" id="import-file" style="display:none" accept=".json" onchange="app.importBackup(event)">
+                        <button class="btn btn-outline" onclick="document.getElementById('import-file').click()">📤 Importer</button>
+                        <button class="btn btn-outline" style="border-color: #f57c00; color: #f57c00;" onclick="auth.startChangePin()">🔑 PIN</button>
+                        <button id="btn-activate-bio" class="btn btn-outline hidden" style="border-color: #4CAF50; color: #4CAF50; flex-basis: 100%;" onclick="auth.registerBiometrics()">🛡️ Biométrie</button>
+                    </div>
+                </div>
+            </main>
+
+            <main id="form-view" class="hidden">
+                <div style="display: flex; gap: 10px; margin-bottom: 1rem;">
+                    <button type="button" class="btn btn-outline" onclick="app.showDashboard()" style="flex: 1;">← Retour</button>
+                    <button type="button" id="btn-new-followup" class="btn btn-success" onclick="app.newVisitForSamePatient()" style="flex: 2; display: none;">➕ Suivi patient</button>
+                </div>
+                
+                <form id="consultation-form" onsubmit="app.saveVisit(event)">
+                    <input type="hidden" id="visit-id">
+                    
+                    <section class="form-section">
+                        <h2>Informations Temporelles</h2>
+                        <div class="grid-2">
+                            <div class="form-group"><label>Date de l'acte</label><input type="text" id="visit-date" class="form-control" placeholder="JJ/MM/AAAA" maxlength="10" inputmode="numeric" oninput="app.formatDateInput(this)" required></div>
+                            <div class="form-group"><label>Heure</label><input type="time" id="visit-time" class="form-control" required></div>
+                        </div>
+                    </section>
+
+                    <section class="form-section">
+                        <h2>Démographie</h2>
+                        <div class="grid-2"><div class="form-group"><label>Nom et Prénom *</label><input type="text" id="patient-name" class="form-control" required></div><div class="form-group"><label>Origine / Ville</label><input type="text" id="patient-origin" class="form-control"></div></div>
+                        <div class="grid-2">
+                            <div class="form-group"><label>Type de pièce</label><select id="patient-doc-type" class="form-control"><option value="">Non renseigné...</option><option value="CIN">CIN</option><option value="Passeport">Passeport</option><option value="Carte de Séjour">Carte de Séjour</option><option value="Autre">Autre</option></select></div>
+                            <div class="form-group"><label>Numéro d'identification</label><input type="text" id="patient-doc-num" class="form-control" placeholder="Numéro..."></div>
+                        </div>
+                        <div class="grid-3">
+                            <div class="form-group"><label>Date de naissance</label><input type="text" id="patient-dob" class="form-control" placeholder="JJ/MM/AAAA" maxlength="10" inputmode="numeric" oninput="app.formatDOBAndCalculateAge(this)"></div>
+                            <div class="form-group"><label>Âge</label><input type="text" id="patient-age" class="form-control" placeholder="Auto..." oninput="app.calculateApproximateDOB(this)"></div>
+                            <div class="form-group"><label>Téléphone</label><input type="tel" id="patient-phone" class="form-control"></div>
+                        </div>
+                    </section>
+                    
+                    <section class="form-section" id="patient-history-section" style="display: none; border-left: 4px solid var(--primary-color);">
+                        <h2>🕒 Consultations passées</h2>
+                        <div id="patient-history-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                    </section>
+
+                    <section class="form-section">
+                        <h2>Clinique & Terrain</h2>
+                        <div class="form-group"><label>Motif de consultation *</label><input type="text" id="visit-reason" class="form-control" required></div>
+                        <div class="grid-2"><div class="form-group"><label>Antécédents (ATCD)</label><textarea id="medical-history" class="form-control"></textarea></div><div class="form-group"><label>Allergies & Intolérances</label><textarea id="allergies" class="form-control"></textarea></div></div>
+                    </section>
+
+                    <section class="form-section" id="scanner-section">
+                        <h2>📸 Pièces Jointes</h2>
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <label for="camera-input" class="btn" style="flex: 1; text-align: center; cursor: pointer; padding: 12px 0;">📸 Photo</label>
+                            <label for="gallery-input" class="btn btn-outline" style="flex: 1; text-align: center; cursor: pointer; background: white; padding: 12px 0;">📁 Galerie</label>
+                        </div>
+                        <input type="file" id="camera-input" accept="image/*" capture="environment" style="display: none;" onchange="app.handleCameraInput(event)">
+                        <input type="file" id="gallery-input" accept="image/*" style="display: none;" onchange="app.handleCameraInput(event)">
+                        
+                        <div id="scanner-preview-section" class="hidden" style="background: #f9f9f9; padding: 15px; border: 1px dashed var(--primary-color); border-radius: 8px; margin-bottom: 15px;">
+                            <img id="scanner-preview" class="preview-img hidden">
+                            <div class="form-group" style="margin-bottom: 10px;"><label>Intitulé du document :</label><input type="text" id="scan-name" class="form-control" placeholder="Ex: Ordonnance..."></div>
+                            <div style="display: flex; gap: 10px;"><button type="button" class="btn btn-success" style="flex: 1;" onclick="app.saveScan()">💾 Valider</button><button type="button" class="btn btn-danger-solid" style="flex: 1;" onclick="app.cancelScan()">❌ Annuler</button></div>
+                        </div>
+                        <div id="scans-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                    </section>
+                    
+                    <section class="form-section">
+                        <h2>Constantes Vitales & Biométrie</h2>
+                        <div class="grid-3">
+                            <div class="form-group"><label>Poids (kg)</label><input type="number" id="vital-weight" class="form-control" placeholder="kg" step="any"></div>
+                            <div class="form-group"><label>Taille (cm)</label><input type="number" id="vital-height" class="form-control" placeholder="cm"></div>
+                            <div class="form-group"><label>TA</label><input type="text" id="vital-bp" class="form-control" placeholder="ex: 12/8"></div>
+                            <div class="form-group"><label>Pouls (bpm)</label><input type="text" id="vital-pulse" class="form-control" placeholder="bpm"></div>
+                            <div class="form-group"><label>Température</label><input type="text" id="vital-temp" class="form-control" placeholder="°C"></div>
+                            <div class="form-group"><label>SpO2 (%)</label><input type="text" id="vital-spo2" class="form-control" placeholder="%"></div>
+                        </div>
+                    </section>
+                    
+                    <section class="form-section">
+                        <h2>Examen Physique Systématique</h2>
+                        <div class="grid-2">
+                            <div class="form-group"><label>Plan Général</label><textarea id="exam-general" class="form-control"></textarea></div>
+                            <div class="form-group"><label>Cardio-vasculaire</label><textarea id="exam-hemo" class="form-control"></textarea></div>
+                            <div class="form-group"><label>Appareil Respiratoire</label><textarea id="exam-resp" class="form-control"></textarea></div>
+                            <div class="form-group"><label>Système Nerveux</label><textarea id="exam-neuro" class="form-control"></textarea></div>
+                            <div class="form-group"><label>Sphère Abdominale</label><textarea id="exam-abdo" class="form-control"></textarea></div>
+                            <div class="form-group"><label>Divers / Autres</label><textarea id="exam-other" class="form-control"></textarea></div>
+                            <div class="form-group" style="grid-column: 1 / -1;"><label>Recommandation</label><textarea id="exam-reco" class="form-control"></textarea></div>
+                        </div>
+                    </section>
+                    
+                    <section class="form-section">
+                        <h2>Conduite à Tenir</h2>
+                        <div class="form-group"><label>Plan Thérapeutique / Ordonnance</label><textarea id="prescription" class="form-control" style="min-height: 80px;"></textarea></div>
+                        <div class="form-group" style="max-width: 250px;"><label>Honoraires de l'acte (DT)</label><input type="number" id="visit-fee" class="form-control" step="any"></div>
+                    </section>
+                    <div class="form-actions"><button type="submit" class="btn">💾 Enregistrer la consultation</button></div>
+                </form>
+            </main>
+        </div>
+    </div>
+
+    <div id="view-scan-modal" class="modal hidden">
+        <div class="modal-header"><div><h3 id="modal-scan-title" style="margin: 0; font-size: 1.2rem; color: white;">Document</h3><span id="modal-scan-date" style="font-size: 0.85rem; opacity: 0.8;">Date</span></div><span class="close-modal" onclick="app.closeScanViewer()">&times;</span></div>
+        <img id="modal-scan-img" class="modal-content hidden" src="" onclick="app.closeScanViewer()">
+    </div>
+
+    <script>
+        const FIELDS = {
+            id: 'visit-id', name: 'patient-name', origin: 'patient-origin', docType: 'patient-doc-type', docNum: 'patient-doc-num',
+            dob: 'patient-dob', age: 'patient-age', phone: 'patient-phone', reason: 'visit-reason', history: 'medical-history',
+            allergies: 'allergies', weight: 'vital-weight', height: 'vital-height', bp: 'vital-bp', pulse: 'vital-pulse', rr: 'vital-rr', 
+            temp: 'vital-temp', spo2: 'vital-spo2', examGeneral: 'exam-general', examHemo: 'exam-hemo', examResp: 'exam-resp', 
+            examNeuro: 'exam-neuro', examAbdo: 'exam-abdo', examOther: 'exam-other', examReco: 'exam-reco', prescription: 'prescription', fee: 'visit-fee'
+        };
+
+        const cryptoUtils = {
+            async deriveKey(pin, salt) {
+                const pinBuffer = new TextEncoder().encode(pin);
+                const baseKey = await crypto.subtle.importKey("raw", pinBuffer, { name: "PBKDF2" }, false, ["deriveKey"]);
+                return crypto.subtle.deriveKey({ name: "PBKDF2", salt: salt, iterations: 100000, hash: "SHA-256" }, baseKey, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+            },
+            async encrypt(text, pin) {
+                const dataBuffer = new TextEncoder().encode(text); const salt = crypto.getRandomValues(new Uint8Array(16)); const iv = crypto.getRandomValues(new Uint8Array(12));
+                const key = await this.deriveKey(pin, salt); const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, key, dataBuffer);
+                const combined = new Uint8Array(salt.length + iv.length + ciphertext.byteLength);
+                combined.set(salt, 0); combined.set(iv, salt.length); combined.set(new Uint8Array(ciphertext), salt.length + iv.length);
+                let bin = ''; combined.forEach(b => bin += String.fromCharCode(b)); return btoa(bin);
+            },
+            async decrypt(combinedBase64, pin) {
+                const binStr = atob(combinedBase64); const combined = new Uint8Array(binStr.length);
+                for (let i = 0; i < binStr.length; i++) combined[i] = binStr.charCodeAt(i);
+                const salt = combined.slice(0, 16); const iv = combined.slice(16, 28); const ciphertext = combined.slice(28);
+                const key = await this.deriveKey(pin, salt); const decryptedBuffer = await crypto.subtle.decrypt({ name: "AES-GCM", iv: iv }, key, ciphertext);
+                return new TextDecoder().decode(decryptedBuffer);
+            }
+        };
+
+        // GESTIONNAIRE POUR LES SAUVEGARDES JSON DE LA BASE DE DONNÉES
+        function downloadJSON(filename, data) {
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob); 
+            const a = document.createElement('a'); 
+            a.style.display = 'none'; 
+            a.href = url; 
+            a.download = filename;
+            document.body.appendChild(a); 
+            a.click(); 
+            setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(url); }, 100);
+        }
+
+        const auth = {
+            currentPinInput: "", mode: "login", tempNewPin: "",
+            init() {
+                const docName = localStorage.getItem('docpocket_doc_name'); const isPinConfigured = localStorage.getItem('docpocket_pin_configured');
+                document.getElementById('auth-view').classList.remove('hidden'); document.getElementById('app-ui').classList.add('hidden'); document.getElementById('btn-cancel-change').classList.add('hidden');
+                if (!docName) { this.mode = 'license'; document.getElementById('auth-license-section').classList.remove('hidden'); document.getElementById('auth-pin-section').classList.add('hidden'); } 
+                else if (!isPinConfigured) { this.mode = 'setup'; document.getElementById('auth-pin-section').classList.remove('hidden'); document.getElementById('auth-license-section').classList.add('hidden'); document.getElementById('pin-title').innerText = "Créez un Code PIN (4 chiffres)"; } 
+                else { this.mode = 'login'; document.getElementById('auth-pin-section').classList.remove('hidden'); document.getElementById('auth-license-section').classList.add('hidden'); document.getElementById('pin-title').innerText = "Entrez votre Code PIN"; if (window.isSecureContext && window.PublicKeyCredential) document.getElementById('btn-biometric').classList.remove('hidden'); }
+            },
+            checkLicense() { const key = document.getElementById('license-key').value.trim(); const parts = key.split('-'); if (parts.length === 3 && parts[0] === 'DOCPRO' && parts[2] === '2026') { try { localStorage.setItem('docpocket_doc_name', "Dr " + atob(parts[1])); this.init(); } catch(e) { alert("Licence incorrecte."); } } else alert("Licence invalide."); },
+            pressPin(num) { if (this.currentPinInput.length < 4) { this.currentPinInput += num; this.updatePinDisplay(); } },
+            clearPin() { this.currentPinInput = ""; this.updatePinDisplay(); },
+            updatePinDisplay() { document.getElementById('pin-dots').innerText = "*".repeat(this.currentPinInput.length); },
+            startChangePin() { this.mode = 'change_pin_old'; document.getElementById('app-ui').classList.add('hidden'); document.getElementById('auth-view').classList.remove('hidden'); document.getElementById('auth-pin-section').classList.remove('hidden'); document.getElementById('btn-biometric').classList.add('hidden'); document.getElementById('btn-cancel-change').classList.remove('hidden'); document.getElementById('pin-title').innerText = "Saisissez l'ANCIEN PIN"; this.clearPin(); },
+            cancelChangePin() { this.clearPin(); document.getElementById('btn-cancel-change').classList.add('hidden'); this.unlockApp(); },
+            async submitPin() {
+                if (this.currentPinInput.length !== 4) return alert("4 chiffres requis.");
+                if (this.mode === 'setup') { try { const encryptedEmpty = await cryptoUtils.encrypt("[]", this.currentPinInput); localStorage.setItem(app.STORAGE_KEY, encryptedEmpty); localStorage.setItem('docpocket_pin_configured', 'true'); app.currentPin = this.currentPinInput; this.unlockApp(); } catch(e) { alert("Erreur."); } } 
+                else if (this.mode === 'login') { try { const data = localStorage.getItem(app.STORAGE_KEY); if (data) { const txt = await cryptoUtils.decrypt(data, this.currentPinInput); app.visits = JSON.parse(txt); } else app.visits = []; app.currentPin = this.currentPinInput; this.unlockApp(); } catch (error) { alert("PIN incorrect."); this.clearPin(); } } 
+                else if (this.mode === 'change_pin_old') { if (this.currentPinInput === app.currentPin) { this.mode = 'change_pin_new'; document.getElementById('pin-title').innerText = "Saisissez le NOUVEAU PIN"; this.clearPin(); } else { alert("Ancien PIN incorrect."); this.clearPin(); } } 
+                else if (this.mode === 'change_pin_new') { this.tempNewPin = this.currentPinInput; this.mode = 'change_pin_confirm'; document.getElementById('pin-title').innerText = "Confirmez le NOUVEAU PIN"; this.clearPin(); } 
+                else if (this.mode === 'change_pin_confirm') { if (this.currentPinInput === this.tempNewPin) { app.currentPin = this.tempNewPin; await app.saveData(); alert("✅ PIN modifié !"); document.getElementById('btn-cancel-change').classList.add('hidden'); this.unlockApp(); } else { alert("Non correspondant."); this.mode = 'change_pin_new'; document.getElementById('pin-title').innerText = "Saisissez le NOUVEAU PIN"; this.clearPin(); } }
+            },
+            async registerBiometrics() { try { const challenge = new Uint8Array(32); window.crypto.getRandomValues(challenge); const userId = new Uint8Array(16); window.crypto.getRandomValues(userId); const credential = await navigator.credentials.create({ publicKey: { challenge: challenge, rp: { name: "DocPocket Pro", id: window.location.hostname }, user: { id: userId, name: "docteur", displayName: "Docteur" }, pubKeyCredParams: [{type: "public-key", alg: -7}, {type: "public-key", alg: -257}], authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required" }, timeout: 60000 } }); if (credential) { const credIdBase64 = btoa(String.fromCharCode.apply(null, new Uint8Array(credential.rawId))); localStorage.setItem('docpocket_passkey_id', credIdBase64); localStorage.setItem('docpocket_bio_token', btoa(app.currentPin)); alert("✅ Biométrie activée !"); } } catch (error) { alert("Erreur biométrique locale."); } },
+            async useBiometrics() { const savedCredId = localStorage.getItem('docpocket_passkey_id'); if (!savedCredId) return alert("⚠️ Aucune empreinte configurée."); try { const challenge = new Uint8Array(32); window.crypto.getRandomValues(challenge); const credIdArray = Uint8Array.from(atob(savedCredId), c => c.charCodeAt(0)); const credential = await navigator.credentials.get({ publicKey: { challenge: challenge, allowCredentials: [{ type: "public-key", id: credIdArray }], userVerification: "required", timeout: 60000 } }); if (credential) { const bioToken = localStorage.getItem('docpocket_bio_token'); if (bioToken) { this.currentPinInput = atob(bioToken); await this.submitPin(); } } } catch (error) {} },
+            unlockApp() { document.getElementById('auth-view').classList.add('hidden'); document.getElementById('app-ui').classList.remove('hidden'); app.init(); const toast = document.getElementById('toast-notification'); document.getElementById('toast-doc-name').textContent = app.doctorName || localStorage.getItem('docpocket_doc_name'); toast.classList.remove('hidden'); setTimeout(() => { toast.classList.add('fade-out'); }, 2500); setTimeout(() => { toast.classList.add('hidden'); toast.classList.remove('fade-out'); }, 3000); },
+            lockApp() { app.currentPin = ""; app.visits = []; app.currentScans = []; document.getElementById('app-ui').classList.add('hidden'); this.init(); this.clearPin(); }
+        };
+
+        const app = {
+            visits: [], currentScans: [], tempScanBase64: "", tempScanType: "", STORAGE_KEY: 'docpocket_visits_data_v2', doctorName: '', currentPin: '', deferredPrompt: null,
+
+            async init() {
+                this.doctorName = localStorage.getItem('docpocket_doc_name') || 'Dr';
+                document.getElementById('app-title-display').textContent = `DocPocket Pro`;
+                localforage.config({ name: 'DocPocketPro', storeName: 'dossiers_scans' });
+                
+                await this.loadCustomImages();
+                if (window.isSecureContext && window.PublicKeyCredential) document.getElementById('btn-activate-bio').classList.remove('hidden');
+                if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').then(reg => { reg.update(); }).catch(()=>{}); }
+                window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); this.deferredPrompt = e; document.getElementById('pwa-install-banner').classList.remove('hidden'); });
+                
+                const now = new Date(); document.getElementById('report-month').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+                this.renderDashboard(); document.getElementById('search-input').addEventListener('input', (e) => this.renderDashboard(e.target.value.toLowerCase()));
+            },
+
+            async loadCustomImages() {
+                try {
+                    const lBase = await localforage.getItem('docpocket_custom_logo') || "icon-512.png?v=3";
+                    const hl = document.getElementById('main-app-logo'); if(hl && lBase) hl.src = lBase;
+                } catch(e) {}
+            },
+
+            handleImageUpload(event, storageKey, successMsg) {
+                const file = event.target.files[0]; if (!file) return; const reader = new FileReader();
+                reader.onload = async (e) => { await localforage.setItem(storageKey, e.target.result); await this.loadCustomImages(); alert("✅ " + successMsg); };
+                reader.readAsDataURL(file); event.target.value = '';
+            },
+            async removeImage(storageKey, confirmMsg) { if(confirm(confirmMsg)) { await localforage.removeItem(storageKey); await this.loadCustomImages(); } },
+            
+            async installPWA() { if (this.deferredPrompt) { this.deferredPrompt.prompt(); const { outcome } = await this.deferredPrompt.userChoice; if (outcome === 'accepted') document.getElementById('pwa-install-banner').classList.add('hidden'); this.deferredPrompt = null; } },
+            
+            async purgeCacheAndReload() { 
+                if (confirm("Forcer la mise à jour globale et vider le cache ?")) { 
+                    try { 
+                        if ('caches' in window) { const keys = await caches.keys(); await Promise.all(keys.map(k => caches.delete(k))); } 
+                        if ('serviceWorker' in navigator) { const regs = await navigator.serviceWorker.getRegistrations(); for (let r of regs) await r.unregister(); } 
+                        window.location.reload(true); 
+                    } catch (err) { window.location.reload(true); } 
+                } 
+            },
+
+            async saveData() { try { const encrypted = await cryptoUtils.encrypt(JSON.stringify(this.visits), this.currentPin); localStorage.setItem(this.STORAGE_KEY, encrypted); } catch(e) { alert("Erreur d'écriture sécurisée."); } },
+
+            toggleAccordion(id) { const el = document.getElementById(id); const ic = document.getElementById('icon-' + id); if (el.style.display === 'none') { el.style.display = 'block'; ic.innerText = '▲'; } else { el.style.display = 'none'; ic.innerText = '▼'; } },
+            
+            newVisitForPatient(patientName) {
+                const pVisits = this.visits.filter(v => v.name.trim().toLowerCase() === patientName.trim().toLowerCase()).sort((a,b) => (new Date(b.date).getTime()||0) - (new Date(a.date).getTime()||0));
+                this.showForm(); 
+                if(pVisits[0]) {
+                    const fieldsToKeep = ['name', 'origin', 'docType', 'docNum', 'dob', 'age', 'phone', 'history', 'allergies', 'weight', 'height'];
+                    fieldsToKeep.forEach(k => { const el = document.getElementById(FIELDS[k]); if(el) el.value = pVisits[0][k] || ''; });
+                }
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            },
+            newVisitForSamePatient() { const name = document.getElementById('patient-name').value; if(name && confirm("Nouvelle consultation pour ce patient ?")) this.newVisitForPatient(name); },
+
+            formatDateInput(input) {
+                let v = input.value.replace(/\D/g, ''); 
+                if (v.length > 2) v = v.slice(0, 2) + '/' + v.slice(2); 
+                if (v.length > 5) v = v.slice(0, 5) + '/' + v.slice(5, 9); 
+                input.value = v;
+            },
+            formatDOBAndCalculateAge(input) {
+                let v = input.value.replace(/\D/g, ''); 
+                if (v.length > 2) v = v.slice(0, 2) + '/' + v.slice(2); 
+                if (v.length > 5) v = v.slice(0, 5) + '/' + v.slice(5, 9); 
+                input.value = v;
+                if (v.length === 10) { 
+                    const p = v.split('/'); 
+                    const age = Math.abs(new Date(Date.now() - new Date(p[2], p[1]-1, p[0]).getTime()).getUTCFullYear() - 1970); 
+                    document.getElementById('patient-age').value = age > 0 ? `${age} ans` : '< 1 an'; 
+                }
+            },
+            calculateApproximateDOB(input) { 
+                const v = input.value.replace(/\D/g, ''); 
+                if (v && !document.getElementById('patient-dob').value) {
+                    document.getElementById('patient-dob').value = `01/01/${new Date().getFullYear() - parseInt(v, 10)}`; 
+                }
+            },
+
+            handleCameraInput(event) {
+                const file = event.target.files[0]; if (!file) return; const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.tempScanBase64 = e.target.result; this.tempScanType = file.type;
+                    const img = document.getElementById('scanner-preview');
+                    img.classList.remove('hidden'); img.src = this.tempScanBase64;
+                    document.getElementById('scanner-preview-section').classList.remove('hidden'); document.getElementById('scan-name').focus();
+                }; reader.readAsDataURL(file); event.target.value = ''; 
+            },
+            cancelScan() { this.tempScanBase64 = ""; document.getElementById('scan-name').value = ""; document.getElementById('scanner-preview-section').classList.add('hidden'); },
+            saveScan() {
+                const nom = document.getElementById('scan-name').value.trim(); if (!nom) return alert("Renseignez l'intitulé.");
+                this.currentScans.push({ id: Date.now(), name: nom, date: new Date().toLocaleDateString('fr-FR'), image: this.tempScanBase64, type: this.tempScanType || 'image/jpeg' });
+                this.renderScansList(); this.cancelScan();
+            },
+            editScan(id) { const s = this.currentScans.find(x => x.id === id); if (s) { const nom = prompt("Modifier le nom :", s.name); if (nom && nom.trim() !== "") { s.name = nom.trim(); this.renderScansList(); } } },
+            deleteScan(id) { if(confirm("Supprimer ce document ?")) { this.currentScans = this.currentScans.filter(s => s.id !== id); this.renderScansList(); } },
+            renderScansList() {
+                const list = document.getElementById('scans-list'); list.innerHTML = "";
+                if (this.currentScans.length === 0) return list.innerHTML = `<p style="text-align:center; color:#888; font-size: 0.9rem;">Aucun document lié.</p>`;
+                this.currentScans.forEach(s => {
+                    list.innerHTML += `<div class="scan-item"><div style="flex:1; cursor:pointer;" onclick="app.openScanViewer(${s.id})"><strong style="color: var(--secondary-color);">🖼️ ${s.name}</strong><br><span style="font-size:0.8rem; color:#666;">Ajouté le ${s.date}</span></div><div style="display: flex; gap: 5px;"><button type="button" class="btn btn-outline" style="padding: 6px 12px; background: white;" onclick="app.editScan(${s.id})">✏️</button><button type="button" class="btn btn-danger" style="padding: 6px 12px;" onclick="app.deleteScan(${s.id})">🗑️</button></div></div>`;
+                });
+            },
+            openScanViewer(id) {
+                const s = this.currentScans.find(x => x.id === id); if (!s) return;
+                document.getElementById('modal-scan-title').textContent = s.name; document.getElementById('modal-scan-date').textContent = s.date;
+                const img = document.getElementById('modal-scan-img');
+                img.classList.remove('hidden'); img.src = s.image;
+                document.getElementById('view-scan-modal').classList.remove('hidden');
+            },
+            closeScanViewer() { document.getElementById('view-scan-modal').classList.add('hidden'); document.getElementById('modal-scan-img').src = ""; },
+
+            async saveVisit(e) {
+                if (e) e.preventDefault(); 
+                if (!document.getElementById('patient-name').value.trim() || !document.getElementById('visit-reason').value.trim()) return alert("⚠️ Nom et motif obligatoires.");
+                try {
+                    if (!Array.isArray(this.visits)) this.visits = [];
+                    const isNew = !document.getElementById('visit-id').value;
+                    const vId = isNew ? Date.now().toString() : document.getElementById('visit-id').value;
+                    
+                    const dInput = document.getElementById('visit-date').value; const tInput = document.getElementById('visit-time').value || "00:00";
+                    let dateVisite; 
+                    try { 
+                        const parts = dInput.split('/');
+                        if(parts.length === 3) dateVisite = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T${tInput}:00`).toISOString();
+                        else dateVisite = new Date().toISOString();
+                    } catch(err) { dateVisite = new Date().toISOString(); }
+
+                    const v = { id: String(vId), date: dateVisite, updatedAt: Date.now() };
+                    
+                    for(let key in FIELDS) { 
+                        if(key !== 'id') {
+                            const el = document.getElementById(FIELDS[key]);
+                            v[key] = el ? el.value : ''; 
+                        }
+                    }
+
+                    if (isNew) this.visits.unshift(v); 
+                    else { const idx = this.visits.findIndex(x => String(x.id) === String(v.id)); if(idx !== -1) this.visits[idx] = v; }
+                    
+                    await localforage.setItem('scans_' + vId, this.currentScans);
+                    await this.saveData(); this.showDashboard(); window.scrollTo({ top: 0, behavior: 'smooth' });
+                } catch (erreur) { alert("Erreur technique : " + erreur.message); }
+            },
+
+            async deleteVisit(id) { if (confirm("Supprimer définitivement cette consultation ?")) { this.visits = this.visits.filter(v => v.id !== id); await localforage.removeItem('scans_' + id); await this.saveData(); this.renderDashboard(); } },
+
+            showDashboard() { document.getElementById('form-view').classList.add('hidden'); document.getElementById('dashboard-view').classList.remove('hidden'); this.renderDashboard(); },
+
+            async showForm(id = null) {
+                document.getElementById('dashboard-view').classList.add('hidden'); document.getElementById('form-view').classList.remove('hidden');
+                document.getElementById('consultation-form').reset(); document.getElementById('visit-id').value = ''; this.cancelScan();
+                
+                const histSection = document.getElementById('patient-history-section'); const histList = document.getElementById('patient-history-list'); const btnNewFollowup = document.getElementById('btn-new-followup');
+                if (histSection) histSection.style.display = 'none'; if (btnNewFollowup) btnNewFollowup.style.display = 'none'; if (histList) histList.innerHTML = '';
+                
+                if (id) { 
+                    if (btnNewFollowup) btnNewFollowup.style.display = 'block';
+                    const v = this.visits.find(x => x.id === id); 
+                    if (v) {
+                        for(let key in FIELDS) { const el = document.getElementById(FIELDS[key]); if(el) el.value = v[key] || ''; }
+                        
+                        let vDate = new Date(v.date); if(isNaN(vDate.getTime())) vDate = new Date();
+                        document.getElementById('visit-date').value = `${String(vDate.getDate()).padStart(2,'0')}/${String(vDate.getMonth()+1).padStart(2,'0')}/${vDate.getFullYear()}`;
+                        document.getElementById('visit-time').value = vDate.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+                        
+                        const pName = v.name.toLowerCase().trim();
+                        const pastVisits = this.visits.filter(x => x.name.toLowerCase().trim() === pName && x.id !== id);
+                        if (pastVisits.length > 0 && histSection && histList) {
+                            histSection.style.display = 'block';
+                            pastVisits.sort((a,b) => (new Date(b.date).getTime()||0) - (new Date(a.date).getTime()||0)).forEach(pv => {
+                                const pvDate = new Date(pv.date);
+                                histList.innerHTML += `<div style="background: #f4f7f6; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;" onclick="app.showForm('${pv.id}')"><div><strong style="color:var(--primary-color);">${pvDate.toLocaleDateString('fr-FR')} à ${pvDate.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})}</strong> - ${pv.reason}</div><button type="button" class="btn btn-outline" style="padding: 4px 8px; font-size: 0.8rem;">Ouvrir</button></div>`;
+                            });
+                        }
+                    }
+                    this.currentScans = (await localforage.getItem('scans_' + id)) || [];
+                } else { 
+                    this.currentScans = []; 
+                    const now = new Date();
+                    document.getElementById('visit-date').value = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+                    document.getElementById('visit-time').value = now.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+                }
+                this.renderScansList(); window.scrollTo({ top: 0, behavior: 'smooth' });
+            },
+
+            async exportBackup() {
+                try {
+                    const data = localStorage.getItem(this.STORAGE_KEY); if(!data) return alert("Base vide.");
+                    const scansData = {}; await localforage.iterate((value, key) => { scansData[key] = value; });
+                    const blob = new Blob([JSON.stringify({ visits: data, scans: scansData })], { type: "application/json" });
+                    
+                    const url = URL.createObjectURL(blob); 
+                    const a = document.createElement('a'); 
+                    a.style.display = 'none'; 
+                    a.href = url; 
+                    a.download = `DocPocket_Sync_${new Date().toISOString().slice(0,10)}.json`;
+                    document.body.appendChild(a); 
+                    a.click(); 
+                    setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(url); }, 100);
+                } catch (e) { alert("Erreur d'exportation."); }
+            },
+
+            importBackup(e) {
+                const file = e.target.files[0]; if(!file) return; const reader = new FileReader();
+                reader.onload = async (ev) => {
+                    const content = ev.target.result.trim();
+                    try {
+                        let parsedData;
+                        try { parsedData = JSON.parse(content); } catch(err) { parsedData = null; }
+
+                        if (parsedData && parsedData.visits) {
+                            const decTxt = await cryptoUtils.decrypt(parsedData.visits, this.currentPin); 
+                            const impV = JSON.parse(decTxt);
+                            if (confirm("🔄 Lancer la restauration des données ?")) { 
+                                impV.forEach(iv => {
+                                    const idx = this.visits.findIndex(v => String(v.id) === String(iv.id));
+                                    if (idx === -1) this.visits.push(iv);
+                                    else {
+                                        const cUpdate = this.visits[idx].updatedAt || new Date(this.visits[idx].date).getTime();
+                                        const iUpdate = iv.updatedAt || new Date(iv.date).getTime();
+                                        if (iUpdate > cUpdate) this.visits[idx] = iv;
+                                    }
+                                });
+                                this.visits.sort((a, b) => (new Date(b.date).getTime()||0) - (new Date(a.date).getTime()||0)); 
+                                await this.saveData();
+                                
+                                if (parsedData.scans) {
+                                    for (const k in parsedData.scans) {
+                                        if (k.startsWith('docpocket_')) { await localforage.setItem(k, parsedData.scans[k]); continue; }
+                                        const iScans = parsedData.scans[k] || []; const cScans = (await localforage.getItem(k)) || [];
+                                        const uniq = [...cScans, ...iScans].reduce((acc, curr) => { if(!acc.find(i=>i.id===curr.id)) acc.push(curr); return acc; }, []);
+                                        await localforage.setItem(k, uniq);
+                                    }
+                                }
+                                alert("✅ Restauration réussie !"); window.location.reload(); 
+                            }
+                        } else {
+                            await cryptoUtils.decrypt(content, this.currentPin); 
+                            if (confirm("⚠️ Format de sauvegarde direct détecté. Restaurer cette base ?")) { 
+                                localStorage.setItem(this.STORAGE_KEY, content); 
+                                window.location.reload(); 
+                            }
+                        }
+                    } catch (err) { alert("❌ Code PIN incorrect ou fichier illisible."); }
+                }; reader.readAsText(file); e.target.value = ''; 
+            },
+
+            // ====================================================================
+            // GÉNÉRATION PURE JAVASCRIPT (MÉTHODE B) - AUTO RATIO CACHET
+            // ====================================================================
+            
+            drawProportionalImage(doc, base64, x, y, maxW, maxH, align="left") {
+                try {
+                    const props = doc.getImageProperties(base64);
+                    const ratio = props.width / props.height;
+                    
+                    let w = maxW;
+                    let h = w / ratio;
+                    
+                    if (h > maxH) { 
+                        h = maxH; 
+                        w = h * ratio; 
+                    }
+                    
+                    let finalX = x;
+                    if (align === "right") finalX = x - w;
+                    else if (align === "center") finalX = x - (w / 2);
+                    
+                    doc.addImage(base64, 'JPEG', finalX, y, w, h);
+                    return h;
+                } catch(e) { return 0; }
+            },
+
+            async generateMonthlyReport(event) {
+                const [y, m] = document.getElementById('report-month').value.split('-'); if(!y) return;
+                const filtered = this.visits.filter(v => new Date(v.date).getFullYear() == y && new Date(v.date).getMonth() == m - 1).sort((a, b) => (new Date(a.date).getTime()||0) - (new Date(b.date).getTime()||0));
+                
+                if (filtered.length === 0) return alert("Aucun acte enregistré ce mois.");
+
+                let btnText = "Générer le PDF"; if (event && event.target) { btnText = event.target.innerText; event.target.innerText = "⏳..."; }
+                
+                try {
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+                    
+                    doc.setFont("times", "normal");
+                    
+                    const perBase = await localforage.getItem('docpocket_personal_logo');
+                    const parBase = await localforage.getItem('docpocket_partner_logo');
+                    const lBase = await localforage.getItem('docpocket_custom_logo');
+
+                    if(perBase) this.drawProportionalImage(doc, perBase, 15, 10, 30, 20, "left");
+                    if(parBase) this.drawProportionalImage(doc, parBase, 195, 10, 30, 20, "right");
+                    if(lBase && lBase !== "icon-512.png?v=3") this.drawProportionalImage(doc, lBase, 105, 10, 20, 15, "center");
+                    
+                    doc.setFontSize(18);
+                    doc.setFont("times", "bold");
+                    doc.text("Journal des Honoraires", 105, 35, { align: "center" });
+                    
+                    doc.setFontSize(13);
+                    doc.setFont("times", "normal");
+                    doc.text(`Période : ${m}/${y}`, 105, 42, { align: "center" });
+                    doc.text(`Édité par : ${this.doctorName}`, 105, 48, { align: "center" });
+
+                    const tableBody = filtered.map(v => {
+                        let vDate = new Date(v.date); if(isNaN(vDate.getTime())) vDate = new Date();
+                        const dateStr = vDate.toLocaleDateString('fr-FR');
+                        const fee = parseFloat(v.fee) || 0;
+                        return [dateStr, v.name, v.reason, fee > 0 ? fee.toFixed(3) + ' DT' : '-'];
+                    });
+
+                    doc.autoTable({
+                        startY: 55,
+                        head: [['Date', 'Patient', 'Motif', 'Montant']],
+                        body: tableBody,
+                        theme: 'grid',
+                        headStyles: { fillColor: [0, 51, 153], font: "times", fontSize: 13 },
+                        styles: { font: "times", fontSize: 12 },
+                        columnStyles: { 3: { halign: 'right', fontStyle: 'bold' } }
+                    });
+
+                    let total = filtered.reduce((sum, v) => sum + (parseFloat(v.fee) || 0), 0);
+                    let finalY = doc.lastAutoTable.finalY + 15;
+                    doc.setFont("times", "bold");
+                    doc.setFontSize(14);
+                    doc.text(`Total mensuel : ${total.toFixed(3)} DT`, 195, finalY, { align: "right" });
+                    
+                    const sigBase = await localforage.getItem('docpocket_custom_signature');
+                    if (sigBase) {
+                        this.drawProportionalImage(doc, sigBase, 195, finalY + 5, 45, 30, "right");
+                    }
+
+                    doc.save(`Journal_Honoraires_${m}-${y}.pdf`);
+
+                } catch(err) {
+                    alert("Erreur d'impression du bilan mensuel : " + err.message);
+                } finally { 
+                    if (event && event.target) event.target.innerText = btnText; 
+                }
+            },
+
+            async generatePDF(id, buttonElement) {
+                const v = this.visits.find(x => x.id === id); if (!v) return;
+                let vDate = new Date(v.date); if(isNaN(vDate.getTime())) vDate = new Date();
+                
+                let btnText = "📄 PDF"; if (buttonElement) { btnText = buttonElement.innerText; buttonElement.innerText = "⏳..."; }
+
+                try {
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+                    
+                    doc.setFont("times", "normal"); 
+                    
+                    const lBase = await localforage.getItem('docpocket_custom_logo');
+                    const perBase = await localforage.getItem('docpocket_personal_logo');
+                    const parBase = await localforage.getItem('docpocket_partner_logo');
+                    const sigBase = await localforage.getItem('docpocket_custom_signature');
+
+                    if(perBase) this.drawProportionalImage(doc, perBase, 15, 10, 30, 20, "left");
+                    if(parBase) this.drawProportionalImage(doc, parBase, 195, 10, 30, 20, "right");
+                    if(lBase && lBase !== "icon-512.png?v=3") this.drawProportionalImage(doc, lBase, 105, 10, 20, 15, "center");
+                    
+                    doc.setFontSize(18);
+                    doc.setFont("times", "bold");
+                    doc.text("Rapport de Consultation", 105, 35, { align: "center" });
+                    
+                    doc.setFontSize(13);
+                    doc.setFont("times", "normal");
+                    doc.text(`Le ${vDate.toLocaleDateString('fr-FR')} à ${vDate.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})}`, 105, 42, { align: "center" });
+
+                    doc.line(15, 46, 195, 46);
+
+                    let y = 55;
+                    
+                    const addLine = (label, text, x = 15, isBoldText = false) => {
+                        if(!text || text.trim() === '') return;
+                        if (y > 270) { doc.addPage(); y = 20; }
+                        
+                        doc.setFont("times", "bold");
+                        doc.text(label, x, y);
+                        
+                        doc.setFont("times", isBoldText ? "bold" : "normal");
+                        const labelWidth = doc.getTextWidth(label + " ");
+                        const lines = doc.splitTextToSize(String(text), 195 - x - labelWidth);
+                        doc.text(lines, x + labelWidth, y);
+                        
+                        y += (lines.length * 6);
+                    };
+
+                    addLine("Nom Patient :", v.name, 15, true);
+                    doc.setFont("times", "bold"); doc.text("Âge :", 120, y - 6); doc.setFont("times", "normal"); doc.text(v.age || '-', 135, y - 6);
+                    y += 2;
+                    
+                    addLine("Document :", (v.docType && v.docNum) ? `${v.docType} : ${v.docNum}` : (v.docType || v.docNum || '-'), 15);
+                    doc.setFont("times", "bold"); doc.text("Téléphone :", 120, y - 6); doc.setFont("times", "normal"); doc.text(v.phone || '-', 145, y - 6);
+                    y += 2;
+                    
+                    addLine("Motif :", v.reason, 15);
+                    y += 5;
+
+                    doc.setFont("times", "bold");
+                    doc.text("Données Fondamentales", 15, y);
+                    doc.line(15, y+2, 80, y+2);
+                    y += 8;
+                    
+                    addLine("ATCD :", v.history);
+                    addLine("Allergies :", v.allergies);
+                    
+                    let vitals = [];
+                    if(v.weight) vitals.push(`Poids: ${v.weight} kg`);
+                    if(v.height) vitals.push(`Taille: ${v.height} cm`);
+                    if(v.bp) vitals.push(`TA: ${v.bp}`);
+                    if(v.pulse) vitals.push(`Pouls: ${v.pulse} bpm`);
+                    if(v.temp) vitals.push(`Temp: ${v.temp}°C`);
+                    if(v.spo2) vitals.push(`SpO2: ${v.spo2}%`);
+                    
+                    if(vitals.length > 0) {
+                        doc.setFont("times", "normal");
+                        const vitalLines = doc.splitTextToSize(vitals.join("  |  "), 180);
+                        doc.text(vitalLines, 15, y);
+                        y += (vitalLines.length * 6);
+                    }
+                    y += 5;
+
+                    doc.setFont("times", "bold");
+                    doc.text("Constatations Physiques", 15, y);
+                    doc.line(15, y+2, 80, y+2);
+                    y += 8;
+                    
+                    const examens = [
+                        {k: 'examGeneral', l: 'Plan Général'}, {k: 'examHemo', l: 'Hémodynamique'},
+                        {k: 'examResp', l: 'Respiratoire'}, {k: 'examNeuro', l: 'Neurologique'},
+                        {k: 'examAbdo', l: 'Abdominal'}, {k: 'examOther', l: 'Reste de l\'examen'}
+                    ];
+                    
+                    examens.forEach(e => { if(v[e.k]) addLine(`${e.l} :`, v[e.k]); });
+                    
+                    if(v.examReco) {
+                        y += 2;
+                        addLine("Recommandation :", v.examReco, 15, true);
+                    }
+                    y += 5;
+
+                    if(v.prescription && v.prescription.trim() !== '') {
+                        if (y > 250) { doc.addPage(); y = 20; }
+                        doc.setFont("times", "bold");
+                        doc.text("Plan Thérapeutique", 15, y);
+                        doc.line(15, y+2, 80, y+2);
+                        y += 8;
+                        
+                        doc.setFont("times", "normal");
+                        const prescLines = doc.splitTextToSize(v.prescription, 180);
+                        doc.text(prescLines, 15, y);
+                        y += (prescLines.length * 6) + 10;
+                    }
+
+                    if (y > 240) { doc.addPage(); y = 30; }
+
+                    doc.setFont("times", "bold");
+                    doc.text("Signature et Cachet :", 195, y, { align: "right" });
+                    y += 5;
+                    
+                    if(sigBase) {
+                        const sigH = this.drawProportionalImage(doc, sigBase, 195, y, 45, 30, "right");
+                        y += sigH + 5;
+                    } else {
+                        y += 15;
+                    }
+                    
+                    doc.setFont("times", "normal");
+                    doc.text(this.doctorName, 195, y, { align: "right" });
+
+                    doc.save(`Rapport_Medical_${(v.name||'Patient').replace(/\s+/g, '_')}_${vDate.toLocaleDateString('fr-FR').replace(/\//g, '-')}.pdf`);
+
+                } catch(err) {
+                    alert("Erreur d'impression du rapport patient : " + err.message);
+                } finally { 
+                    if (buttonElement) buttonElement.innerText = btnText; 
+                }
+            },
+
+            renderDashboard(fStr = '') {
+                const list = document.getElementById('visits-list'); list.innerHTML = '';
+                const searchStr = fStr.trim().toLowerCase();
+                const filtered = this.visits.filter(v => `${v.name} ${v.reason} ${v.docNum||''}`.toLowerCase().includes(searchStr));
+                if (filtered.length === 0) return list.innerHTML = `<p style="text-align:center; padding:2rem; color:#666;">Aucun résultat.</p>`; 
+
+                const pMap = {};
+                filtered.forEach(v => {
+                    const key = v.name.trim().toLowerCase();
+                    if (!pMap[key]) pMap[key] = { name: v.name.trim(), phone: v.phone || '', age: v.age || '', visits: [] };
+                    pMap[key].visits.push(v);
+                });
+
+                const sortedPatients = Object.values(pMap).sort((a,b) => Math.max(...b.visits.map(v=>(new Date(v.date).getTime()||0))) - Math.max(...a.visits.map(v=>(new Date(v.date).getTime()||0))));
+                
+                const isSearching = searchStr.length > 0;
+                const maxDisplay = isSearching ? sortedPatients.length : 10;
+                const patientsToDisplay = sortedPatients.slice(0, maxDisplay);
+
+                if (!isSearching && sortedPatients.length > 10) {
+                    list.innerHTML = `<div style="background: #e3f2fd; color: #1565c0; padding: 10px; border-radius: var(--radius); text-align: center; margin-bottom: 15px; font-size: 0.9rem; border: 1px solid #90caf9;">📌 Affichage des 10 patients récents. Cherchez pour voir la suite.</div>`;
+                } else if (isSearching) {
+                    list.innerHTML = `<div style="text-align: right; margin-bottom: 10px; font-size: 0.85rem; color: var(--text-muted);">🔍 ${sortedPatients.length} patient(s) trouvé(s)</div>`;
+                }
+
+                patientsToDisplay.forEach((p, idx) => {
+                    p.visits.sort((a,b) => (new Date(b.date).getTime()||0) - (new Date(a.date).getTime()||0));
+                    let vHtml = '';
+                    p.visits.forEach(v => {
+                        const fee = parseFloat(v.fee) || 0; let vDate = new Date(v.date); if(isNaN(vDate.getTime())) vDate = new Date();
+                        vHtml += `<div class="consultation-item"><div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:5px;"><strong style="color:var(--primary-color); font-size:0.95rem;">${vDate.toLocaleDateString('fr-FR')} à ${vDate.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})}</strong><span style="font-size:0.85rem; font-weight:bold; color:var(--success-color);">${fee>0?fee.toFixed(3)+' DT':'-'}</span></div><p style="font-size:0.9rem; margin-bottom:10px;"><strong>Motif :</strong> ${v.reason}</p><div style="display:flex; gap:8px;"><button type="button" class="btn btn-outline" style="flex:1; padding:6px; background:white;" onclick="app.generatePDF('${v.id}', this)">📄 PDF</button><button type="button" class="btn btn-outline" style="flex:1; padding:6px; background:white;" onclick="app.showForm('${v.id}')">✏️ Ouvrir</button><button type="button" class="btn btn-danger" style="flex:1; padding:6px;" onclick="app.deleteVisit('${v.id}')">🗑️</button></div></div>`;
+                    });
+                    const sId = 'patient-acc-' + idx;
+                    list.innerHTML += `<div class="patient-card"><div class="patient-card-header" onclick="app.toggleAccordion('${sId}')"><div><h3 style="font-size: 1.1rem; margin:0; color:var(--secondary-color);">👤 ${p.name}</h3><span style="font-size:0.85rem; color:#666;">${p.age ? p.age + ' • ' : ''} ${p.visits.length} acte(s)</span></div><span id="icon-${sId}" style="color:var(--primary-color);">▼</span></div><div id="${sId}" class="patient-history-drawer"><button class="btn btn-success" style="width:100%; margin-bottom:15px;" onclick="app.newVisitForPatient('${p.name}')">➕ Ajouter un acte de suivi</button>${vHtml}</div></div>`;
+                });
+            }
+        };
+
+        window.addEventListener('DOMContentLoaded', () => auth.init());
+    </script>
+</body>
+</html>
