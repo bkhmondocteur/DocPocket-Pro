@@ -9,7 +9,6 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#003399">
-
     <link rel="manifest" href="manifest.json">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -28,11 +27,9 @@
         h1, h2, h3, h4 { color: var(--secondary-color); }
         .hidden { display: none !important; }
 
-        /* TOAST NOTIFICATION */
         #toast-notification { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: var(--primary-color); color: white; padding: 1rem 2rem; border-radius: 30px; box-shadow: 0 4px 15px rgba(0, 51, 153, 0.4); font-weight: bold; font-size: 1.1rem; z-index: 10000; text-align: center; width: max-content; max-width: 90%; opacity: 1; transition: opacity 0.5s ease-in-out; }
         #toast-notification.fade-out { opacity: 0; pointer-events: none; }
 
-        /* AUTH UI */
         #auth-view { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--primary-color); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 1rem; }
         .auth-card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 400px; text-align: center; }
         .auth-logo { width: 70px; height: 70px; object-fit: contain; margin-bottom: 1rem; border-radius: var(--radius); }
@@ -43,7 +40,6 @@
         .key-btn:active { background: #d0d0d0; }
         .bio-btn { background: transparent; border: 2px solid var(--primary-color); color: var(--primary-color); padding: 0.7rem; border-radius: var(--radius); width: 100%; font-size: 0.95rem; font-weight: bold; cursor: pointer; margin-top: 1rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
-        /* HEADER CENTRÉ */
         #app-ui { background-color: var(--bg-color); min-height: 100vh; position: relative; z-index: 1; }
         .app-header { background-color: var(--primary-color); color: white; padding: 0.8rem 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .header-left, .header-right { flex: 1; display: flex; align-items: center; }
@@ -53,7 +49,6 @@
         .app-header h1 { font-size: 1.2rem; margin: 0; white-space: nowrap; }
         .btn-refresh { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 4px; cursor: pointer; }
 
-        /* CONTAINERS & BUTTONS */
         .container { max-width: 1200px; margin: 1rem auto; padding: 0 0.5rem; }
         .btn { background-color: var(--primary-color); color: white; border: none; padding: 0.6rem 1rem; border-radius: var(--radius); cursor: pointer; font-size: 0.95rem; font-weight: 500; display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; transition: 0.2s; width: 100%;}
         .btn:hover { background-color: var(--primary-hover); }
@@ -61,9 +56,9 @@
         .btn-outline:hover { background-color: var(--primary-color); color: white; }
         .btn-danger { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); }
         .btn-danger:hover { background-color: var(--danger-color); color: white; }
+        .btn-danger-solid { background-color: var(--danger-color); color: white; border: none; }
         .btn-success { background-color: var(--success-color); color: white; border: none; }
         
-        /* FORMULAIRES */
         .form-group { margin-bottom: 0.8rem; display: flex; flex-direction: column; width: 100%; }
         .form-group label { font-weight: 600; margin-bottom: 0.2rem; color: var(--secondary-color); font-size: 0.85rem; }
         .form-control { padding: 0.6rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.95rem; background-color: #fafafa; width: 100%; box-sizing: border-box; }
@@ -71,7 +66,6 @@
         .dashboard-controls { display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1.5rem; }
         .visits-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 2rem; }
         
-        /* ACCORDÉON PATIENT */
         .patient-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); border-left: 5px solid var(--primary-color); overflow: hidden; margin-bottom: 15px; }
         .patient-card-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #fff; transition: background 0.2s; }
         .patient-card-header:hover { background: #f0f4f8; }
@@ -86,7 +80,6 @@
         .grid-2, .grid-3 { display: grid; gap: 0.5rem; grid-template-columns: 1fr; }
         .form-actions { display: flex; flex-direction: column; gap: 0.5rem; position: sticky; bottom: 0; background: var(--bg-color); padding: 0.8rem 0.5rem; border-top: 1px solid var(--border-color); z-index: 10; margin-left: -0.5rem; margin-right: -0.5rem; }
 
-        /* SCANNER & MODAL */
         .preview-img { width: 100%; max-height: 250px; object-fit: contain; border-radius: 4px; margin-bottom: 10px; background: #000; }
         .scan-item { display: flex; align-items: center; justify-content: space-between; background: #fdfdfd; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 8px; }
         .modal { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; flex-direction: column; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box; }
@@ -113,6 +106,16 @@
 <body>
 
     <div id="toast-notification" class="hidden">👋 Bonjour <span id="toast-doc-name"></span></div>
+
+    <div id="save-pdf-modal" class="modal hidden" style="background: rgba(0,0,0,0.75);">
+        <div style="background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <h3 style="color: var(--primary-color); margin-bottom: 10px;">💾 Emplacement du PDF</h3>
+            <p style="margin-bottom: 20px; font-size: 0.95rem; color: #555;">Le document a été généré. Où souhaitez-vous l'enregistrer ?</p>
+            <button class="btn btn-outline" style="margin-bottom: 10px; background: white;" onclick="app.executeSavePDF('download')">⬇️ Téléchargement direct</button>
+            <button class="btn" style="background: #2E7D32;" onclick="app.executeSavePDF('share')">📤 Choisir l'emplacement (Drive, Dossier...)</button>
+            <button class="btn btn-danger-solid" style="margin-top: 15px;" onclick="document.getElementById('save-pdf-modal').classList.add('hidden')">Annuler</button>
+        </div>
+    </div>
 
     <div id="auth-view" class="hidden">
         <div class="auth-card">
@@ -197,7 +200,7 @@
             <main id="form-view" class="hidden">
                 <div style="display: flex; gap: 10px; margin-bottom: 1rem;">
                     <button type="button" class="btn btn-outline" onclick="app.showDashboard()" style="flex: 1;">← Retour</button>
-                    <button type="button" id="btn-new-followup" class="btn btn-success" onclick="app.newVisitForSamePatient()" style="flex: 2; display: none;">➕ Suivi patient</button>
+                    <button type="button" id="btn-new-followup" class="btn btn-success" onclick="app.newVisitForSamePatient()" style="flex: 2; display: none;">➕ Saisir un suivi patient</button>
                 </div>
                 
                 <form id="consultation-form" onsubmit="app.saveVisit(event)">
@@ -240,14 +243,16 @@
                         <h2>📸 Pièces Jointes</h2>
                         <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                             <label for="camera-input" class="btn" style="flex: 1; text-align: center; cursor: pointer; padding: 12px 0;">📸 Photo</label>
-                            <label for="gallery-input" class="btn btn-outline" style="flex: 1; text-align: center; cursor: pointer; background: white; padding: 12px 0;">📁 Galerie</label>
+                            <label for="gallery-input" class="btn btn-outline" style="flex: 1; text-align: center; cursor: pointer; background: white; padding: 12px 0;">📁 Image ou PDF</label>
                         </div>
                         <input type="file" id="camera-input" accept="image/*" capture="environment" style="display: none;" onchange="app.handleCameraInput(event)">
-                        <input type="file" id="gallery-input" accept="image/*" style="display: none;" onchange="app.handleCameraInput(event)">
+                        <input type="file" id="gallery-input" accept="image/*,application/pdf" style="display: none;" onchange="app.handleCameraInput(event)">
                         
                         <div id="scanner-preview-section" class="hidden" style="background: #f9f9f9; padding: 15px; border: 1px dashed var(--primary-color); border-radius: 8px; margin-bottom: 15px;">
                             <img id="scanner-preview" class="preview-img hidden">
-                            <div class="form-group" style="margin-bottom: 10px;"><label>Intitulé du document :</label><input type="text" id="scan-name" class="form-control" placeholder="Ex: Ordonnance..."></div>
+                            <div id="scanner-preview-pdf-btn" class="hidden" style="text-align: center; padding: 20px; border: 2px dashed #003399; border-radius: 6px; margin-bottom: 10px; background: #e3f2fd; color: #003399; font-weight: bold;">📄 Document PDF chargé</div>
+                            
+                            <div class="form-group" style="margin-bottom: 10px;"><label>Intitulé du document :</label><input type="text" id="scan-name" class="form-control" placeholder="Ex: NFS, Cliché Thoracique..."></div>
                             <div style="display: flex; gap: 10px;"><button type="button" class="btn btn-success" style="flex: 1;" onclick="app.saveScan()">💾 Valider</button><button type="button" class="btn btn-danger-solid" style="flex: 1;" onclick="app.cancelScan()">❌ Annuler</button></div>
                         </div>
                         <div id="scans-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
@@ -292,6 +297,12 @@
     <div id="view-scan-modal" class="modal hidden">
         <div class="modal-header"><div><h3 id="modal-scan-title" style="margin: 0; font-size: 1.2rem; color: white;">Document</h3><span id="modal-scan-date" style="font-size: 0.85rem; opacity: 0.8;">Date</span></div><span class="close-modal" onclick="app.closeScanViewer()">&times;</span></div>
         <img id="modal-scan-img" class="modal-content hidden" src="" onclick="app.closeScanViewer()">
+        
+        <div id="modal-scan-pdf-container" class="hidden" style="background: white; padding: 25px; border-radius: 8px; text-align: center; width: 90%; max-width: 350px;">
+            <p style="font-size: 3rem; margin-bottom: 10px;">📄</p>
+            <p style="margin-bottom: 20px; color: black; font-weight: bold;">Document PDF</p>
+            <button class="btn btn-success" id="modal-btn-open-pdf">Ouvrir le document</button>
+        </div>
     </div>
 
     <script>
@@ -325,19 +336,6 @@
             }
         };
 
-        // GESTIONNAIRE POUR LES SAUVEGARDES JSON DE LA BASE DE DONNÉES
-        function downloadJSON(filename, data) {
-            const blob = new Blob([data], { type: 'application/json' });
-            const url = URL.createObjectURL(blob); 
-            const a = document.createElement('a'); 
-            a.style.display = 'none'; 
-            a.href = url; 
-            a.download = filename;
-            document.body.appendChild(a); 
-            a.click(); 
-            setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(url); }, 100);
-        }
-
         const auth = {
             currentPinInput: "", mode: "login", tempNewPin: "",
             init() {
@@ -369,6 +367,7 @@
 
         const app = {
             visits: [], currentScans: [], tempScanBase64: "", tempScanType: "", STORAGE_KEY: 'docpocket_visits_data_v2', doctorName: '', currentPin: '', deferredPrompt: null,
+            pendingPDF: { blob: null, filename: "" },
 
             async init() {
                 this.doctorName = localStorage.getItem('docpocket_doc_name') || 'Dr';
@@ -386,7 +385,7 @@
 
             async loadCustomImages() {
                 try {
-                    const lBase = await localforage.getItem('docpocket_custom_logo') || "icon-512.png?v=3";
+                    const lBase = await localforage.getItem('docpocket_custom_logo');
                     const hl = document.getElementById('main-app-logo'); if(hl && lBase) hl.src = lBase;
                 } catch(e) {}
             },
@@ -396,9 +395,8 @@
                 reader.onload = async (e) => { await localforage.setItem(storageKey, e.target.result); await this.loadCustomImages(); alert("✅ " + successMsg); };
                 reader.readAsDataURL(file); event.target.value = '';
             },
+
             async removeImage(storageKey, confirmMsg) { if(confirm(confirmMsg)) { await localforage.removeItem(storageKey); await this.loadCustomImages(); } },
-            
-            async installPWA() { if (this.deferredPrompt) { this.deferredPrompt.prompt(); const { outcome } = await this.deferredPrompt.userChoice; if (outcome === 'accepted') document.getElementById('pwa-install-banner').classList.add('hidden'); this.deferredPrompt = null; } },
             
             async purgeCacheAndReload() { 
                 if (confirm("Forcer la mise à jour globale et vider le cache ?")) { 
@@ -410,7 +408,7 @@
                 } 
             },
 
-            async saveData() { try { const encrypted = await cryptoUtils.encrypt(JSON.stringify(this.visits), this.currentPin); localStorage.setItem(this.STORAGE_KEY, encrypted); } catch(e) { alert("Erreur d'écriture sécurisée."); } },
+            async saveData() { try { const encrypted = await cryptoUtils.encrypt(JSON.stringify(this.visits), auth.currentPinInput); localStorage.setItem(this.STORAGE_KEY, encrypted); } catch(e) { alert("Erreur d'écriture sécurisée."); } },
 
             toggleAccordion(id) { const el = document.getElementById(id); const ic = document.getElementById('icon-' + id); if (el.style.display === 'none') { el.style.display = 'block'; ic.innerText = '▲'; } else { el.style.display = 'none'; ic.innerText = '▼'; } },
             
@@ -454,7 +452,16 @@
                 reader.onload = (e) => {
                     this.tempScanBase64 = e.target.result; this.tempScanType = file.type;
                     const img = document.getElementById('scanner-preview');
-                    img.classList.remove('hidden'); img.src = this.tempScanBase64;
+                    const pdfBtn = document.getElementById('scanner-preview-pdf-btn');
+                    
+                    if (file.type === 'application/pdf') { 
+                        img.classList.add('hidden'); 
+                        pdfBtn.classList.remove('hidden'); 
+                    } else { 
+                        pdfBtn.classList.add('hidden'); 
+                        img.classList.remove('hidden'); 
+                        img.src = this.tempScanBase64; 
+                    }
                     document.getElementById('scanner-preview-section').classList.remove('hidden'); document.getElementById('scan-name').focus();
                 }; reader.readAsDataURL(file); event.target.value = ''; 
             },
@@ -470,14 +477,39 @@
                 const list = document.getElementById('scans-list'); list.innerHTML = "";
                 if (this.currentScans.length === 0) return list.innerHTML = `<p style="text-align:center; color:#888; font-size: 0.9rem;">Aucun document lié.</p>`;
                 this.currentScans.forEach(s => {
-                    list.innerHTML += `<div class="scan-item"><div style="flex:1; cursor:pointer;" onclick="app.openScanViewer(${s.id})"><strong style="color: var(--secondary-color);">🖼️ ${s.name}</strong><br><span style="font-size:0.8rem; color:#666;">Ajouté le ${s.date}</span></div><div style="display: flex; gap: 5px;"><button type="button" class="btn btn-outline" style="padding: 6px 12px; background: white;" onclick="app.editScan(${s.id})">✏️</button><button type="button" class="btn btn-danger" style="padding: 6px 12px;" onclick="app.deleteScan(${s.id})">🗑️</button></div></div>`;
+                    const icon = (s.type === 'application/pdf') ? "📄" : "🖼️";
+                    list.innerHTML += `<div class="scan-item"><div style="flex:1; cursor:pointer;" onclick="app.openScanViewer(${s.id})"><strong style="color: var(--secondary-color);">${icon} ${s.name}</strong><br><span style="font-size:0.8rem; color:#666;">Ajouté le ${s.date}</span></div><div style="display: flex; gap: 5px;"><button type="button" class="btn btn-outline" style="padding: 6px 12px; background: white;" onclick="app.editScan(${s.id})">✏️</button><button type="button" class="btn btn-danger" style="padding: 6px 12px;" onclick="app.deleteScan(${s.id})">🗑️</button></div></div>`;
                 });
             },
+            
             openScanViewer(id) {
                 const s = this.currentScans.find(x => x.id === id); if (!s) return;
                 document.getElementById('modal-scan-title').textContent = s.name; document.getElementById('modal-scan-date').textContent = s.date;
+                
                 const img = document.getElementById('modal-scan-img');
-                img.classList.remove('hidden'); img.src = s.image;
+                const pdfContainer = document.getElementById('modal-scan-pdf-container');
+                const pdfBtn = document.getElementById('modal-btn-open-pdf');
+                
+                if (s.type === 'application/pdf' || s.image.startsWith('data:application/pdf')) { 
+                    img.classList.add('hidden'); 
+                    pdfContainer.classList.remove('hidden'); 
+                    
+                    pdfBtn.onclick = () => {
+                        try {
+                            const byteCharacters = atob(s.image.split(',')[1]);
+                            const byteNumbers = new Array(byteCharacters.length);
+                            for (let i = 0; i < byteCharacters.length; i++) { byteNumbers[i] = byteCharacters.charCodeAt(i); }
+                            const byteArray = new Uint8Array(byteNumbers);
+                            const fileBlob = new Blob([byteArray], { type: 'application/pdf' });
+                            const fileURL = URL.createObjectURL(fileBlob);
+                            window.open(fileURL, '_blank');
+                        } catch(e) { alert("Impossible d'ouvrir ce PDF."); }
+                    };
+                } else { 
+                    pdfContainer.classList.add('hidden'); 
+                    img.classList.remove('hidden'); 
+                    img.src = s.image; 
+                }
                 document.getElementById('view-scan-modal').classList.remove('hidden');
             },
             closeScanViewer() { document.getElementById('view-scan-modal').classList.add('hidden'); document.getElementById('modal-scan-img').src = ""; },
@@ -582,7 +614,7 @@
                         try { parsedData = JSON.parse(content); } catch(err) { parsedData = null; }
 
                         if (parsedData && parsedData.visits) {
-                            const decTxt = await cryptoUtils.decrypt(parsedData.visits, this.currentPin); 
+                            const decTxt = await cryptoUtils.decrypt(parsedData.visits, auth.currentPinInput); 
                             const impV = JSON.parse(decTxt);
                             if (confirm("🔄 Lancer la restauration des données ?")) { 
                                 impV.forEach(iv => {
@@ -608,7 +640,7 @@
                                 alert("✅ Restauration réussie !"); window.location.reload(); 
                             }
                         } else {
-                            await cryptoUtils.decrypt(content, this.currentPin); 
+                            await cryptoUtils.decrypt(content, auth.currentPinInput); 
                             if (confirm("⚠️ Format de sauvegarde direct détecté. Restaurer cette base ?")) { 
                                 localStorage.setItem(this.STORAGE_KEY, content); 
                                 window.location.reload(); 
@@ -619,13 +651,14 @@
             },
 
             // ====================================================================
-            // GÉNÉRATION PURE JAVASCRIPT (MÉTHODE B) - AUTO RATIO CACHET
+            // GENERATEUR DE PDF NATIF PUR JS (MÉTHODE B CHIRURGICALE)
             // ====================================================================
-            
+
             drawProportionalImage(doc, base64, x, y, maxW, maxH, align="left") {
                 try {
                     const props = doc.getImageProperties(base64);
                     const ratio = props.width / props.height;
+                    const format = props.fileType || 'JPEG'; 
                     
                     let w = maxW;
                     let h = w / ratio;
@@ -639,9 +672,34 @@
                     if (align === "right") finalX = x - w;
                     else if (align === "center") finalX = x - (w / 2);
                     
-                    doc.addImage(base64, 'JPEG', finalX, y, w, h);
+                    doc.addImage(base64, format, finalX, y, w, h);
                     return h;
                 } catch(e) { return 0; }
+            },
+
+            async executeSavePDF(method) {
+                document.getElementById('save-pdf-modal').classList.add('hidden');
+                const { blob, filename } = this.pendingPDF;
+                if (!blob) return;
+
+                if (method === 'download') {
+                    const url = URL.createObjectURL(blob); 
+                    const a = document.createElement('a'); 
+                    a.style.display = 'none'; 
+                    a.href = url; 
+                    a.download = filename;
+                    document.body.appendChild(a); 
+                    a.click(); 
+                    setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(url); }, 100);
+                } else if (method === 'share') {
+                    const file = new File([blob], filename, { type: 'application/pdf' });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        try { await navigator.share({ files: [file], title: filename }); } catch(e) { console.log("Partage annulé"); }
+                    } else {
+                        alert("Le menu d'emplacement natif n'est pas supporté par ce navigateur. Le fichier va être téléchargé.");
+                        this.executeSavePDF('download');
+                    }
+                }
             },
 
             async generateMonthlyReport(event) {
@@ -693,7 +751,9 @@
                     });
 
                     let total = filtered.reduce((sum, v) => sum + (parseFloat(v.fee) || 0), 0);
-                    let finalY = doc.lastAutoTable.finalY + 15;
+                    let finalY = (doc.autoTable && doc.autoTable.previous) ? doc.autoTable.previous.finalY + 15 : 100;
+                    if(doc.lastAutoTable) finalY = doc.lastAutoTable.finalY + 15;
+                    
                     doc.setFont("times", "bold");
                     doc.setFontSize(14);
                     doc.text(`Total mensuel : ${total.toFixed(3)} DT`, 195, finalY, { align: "right" });
@@ -703,7 +763,9 @@
                         this.drawProportionalImage(doc, sigBase, 195, finalY + 5, 45, 30, "right");
                     }
 
-                    doc.save(`Journal_Honoraires_${m}-${y}.pdf`);
+                    this.pendingPDF.blob = doc.output('blob');
+                    this.pendingPDF.filename = `Journal_Honoraires_${m}-${y}.pdf`;
+                    document.getElementById('save-pdf-modal').classList.remove('hidden');
 
                 } catch(err) {
                     alert("Erreur d'impression du bilan mensuel : " + err.message);
@@ -843,7 +905,9 @@
                     doc.setFont("times", "normal");
                     doc.text(this.doctorName, 195, y, { align: "right" });
 
-                    doc.save(`Rapport_Medical_${(v.name||'Patient').replace(/\s+/g, '_')}_${vDate.toLocaleDateString('fr-FR').replace(/\//g, '-')}.pdf`);
+                    this.pendingPDF.blob = doc.output('blob');
+                    this.pendingPDF.filename = `Rapport_Medical_${(v.name||'Patient').replace(/\s+/g, '_')}_${vDate.toLocaleDateString('fr-FR').replace(/\//g, '-')}.pdf`;
+                    document.getElementById('save-pdf-modal').classList.remove('hidden');
 
                 } catch(err) {
                     alert("Erreur d'impression du rapport patient : " + err.message);
