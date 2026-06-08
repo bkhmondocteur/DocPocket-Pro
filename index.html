@@ -27,9 +27,11 @@
         h1, h2, h3, h4 { color: var(--secondary-color); }
         .hidden { display: none !important; }
 
+        /* TOAST NOTIFICATION */
         #toast-notification { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: var(--primary-color); color: white; padding: 1rem 2rem; border-radius: 30px; box-shadow: 0 4px 15px rgba(0, 51, 153, 0.4); font-weight: bold; font-size: 1.1rem; z-index: 10000; text-align: center; width: max-content; max-width: 90%; opacity: 1; transition: opacity 0.5s ease-in-out; }
         #toast-notification.fade-out { opacity: 0; pointer-events: none; }
 
+        /* INTERFACE SÉCURITÉ */
         #auth-view { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--primary-color); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 1rem; }
         .auth-card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 400px; text-align: center; }
         .auth-logo { width: 70px; height: 70px; object-fit: contain; margin-bottom: 1rem; border-radius: var(--radius); }
@@ -40,6 +42,7 @@
         .key-btn:active { background: #d0d0d0; }
         .bio-btn { background: transparent; border: 2px solid var(--primary-color); color: var(--primary-color); padding: 0.7rem; border-radius: var(--radius); width: 100%; font-size: 0.95rem; font-weight: bold; cursor: pointer; margin-top: 1rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
+        /* APPLICATION PRINCIPALE */
         #app-ui { background-color: var(--bg-color); min-height: 100vh; position: relative; z-index: 1; }
         .app-header { background-color: var(--primary-color); color: white; padding: 0.8rem 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .header-left, .header-right { flex: 1; display: flex; align-items: center; }
@@ -59,6 +62,7 @@
         .btn-danger-solid { background-color: var(--danger-color); color: white; border: none; }
         .btn-success { background-color: var(--success-color); color: white; border: none; }
         
+        /* DESIGNS DOSSIERS */
         .form-group { margin-bottom: 0.8rem; display: flex; flex-direction: column; width: 100%; }
         .form-group label { font-weight: 600; margin-bottom: 0.2rem; color: var(--secondary-color); font-size: 0.85rem; }
         .form-control { padding: 0.6rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.95rem; background-color: #fafafa; width: 100%; box-sizing: border-box; }
@@ -86,40 +90,25 @@
         .modal-header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 15px; color: white; position: absolute; top: 0; left: 0; background: linear-gradient(rgba(0,0,0,0.7), transparent); }
         .modal-content { max-width: 100%; max-height: 85vh; object-fit: contain; border-radius: 4px; }
         .close-modal { font-size: 2.5rem; color: white; cursor: pointer; padding: 0 10px; }
-
-        @media (min-width: 768px) {
-            .container { padding: 0 1rem; margin: 2rem auto; }
-            .dashboard-controls { flex-direction: row; }
-            .search-bar { width: auto; flex: 1; max-width: 400px; }
-            .visits-grid { grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; }
-            .backup-panel { flex-direction: row; justify-content: space-between; align-items: center; padding: 1.5rem; }
-            .backup-actions { width: auto; flex-wrap: nowrap; }
-            .form-section { padding: 2rem; margin-bottom: 2rem; }
-            .grid-2 { grid-template-columns: 1fr 1fr; }
-            .grid-3 { grid-template-columns: repeat(3, 1fr); }
-            .form-actions { flex-direction: row; justify-content: flex-end; position: static; background: transparent; border: none;}
-            .btn { width: auto; }
-            .app-header h1 { font-size: 1.5rem; }
-        }
     </style>
 </head>
 <body>
 
     <div id="toast-notification" class="hidden">👋 Bonjour <span id="toast-doc-name"></span></div>
 
-    <div id="save-pdf-modal" class="modal hidden" style="background: rgba(0,0,0,0.75);">
+    <div id="save-pdf-modal" class="modal hidden" style="background: rgba(0,0,0,0.85);">
         <div style="background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
             <h3 style="color: var(--primary-color); margin-bottom: 10px;">💾 Emplacement du PDF</h3>
-            <p style="margin-bottom: 20px; font-size: 0.95rem; color: #555;">Le document a été généré. Où souhaitez-vous l'enregistrer ?</p>
+            <p style="margin-bottom: 20px; font-size: 0.95rem; color: #555;">Le document est prêt. Où voulez-vous l'enregistrer ?</p>
             <button class="btn btn-outline" style="margin-bottom: 10px; background: white;" onclick="app.executeSavePDF('download')">⬇️ Téléchargement direct</button>
-            <button class="btn" style="background: #2E7D32;" onclick="app.executeSavePDF('share')">📤 Choisir l'emplacement (Drive, Dossier...)</button>
+            <button class="btn" style="background: #2E7D32;" onclick="app.executeSavePDF('share')">📤 Choisir l'emplacement (Drive, Dossiers, Cloud...)</button>
             <button class="btn btn-danger-solid" style="margin-top: 15px;" onclick="document.getElementById('save-pdf-modal').classList.add('hidden')">Annuler</button>
         </div>
     </div>
 
     <div id="auth-view" class="hidden">
         <div class="auth-card">
-            <img class="auth-logo" src="icon-512.png?v=3" alt="Logo Cabinet" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%23003399\'><path d=\'M19 10.5h-5.5V5h-3v5.5H5v3h5.5V19h3v-5.5H19v-3z\'/></svg>'">
+            <img class="auth-logo" src="icon-512.png?v=3" alt="Logo" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%23003399\'><path d=\'M19 10.5h-5.5V5h-3v5.5H5v3h5.5V19h3v-5.5H19v-3z\'/></svg>'">
             <div id="auth-license-section" class="hidden">
                 <h2>Activation DocPocket</h2>
                 <input type="text" id="license-key" class="form-control" placeholder="DOCPRO-xxxxxx-2026" style="text-align: center;">
@@ -155,30 +144,25 @@
 
         <div class="container">
             <main id="dashboard-view">
-                <div id="pwa-install-banner" class="hidden" style="background: #e3f2fd; padding: 1rem; border-radius: var(--radius); margin-bottom: 1.5rem; text-align: center; border: 1px solid #90caf9;">
-                    <p style="margin-bottom: 0.5rem; font-weight: bold; color: #1565c0;">📱 Profitez de l'expérience plein écran !</p>
-                    <button class="btn" onclick="app.installPWA()">Installer l'application</button>
-                </div>
-
                 <div class="dashboard-controls">
                     <button class="btn btn-success" onclick="app.showForm()" style="font-size: 1.1rem; padding: 0.8rem;">➕ Nouveau Patient</button>
-                    <input type="text" id="search-input" class="form-control search-bar" placeholder="Rechercher un patient ou un document...">
+                    <input type="text" id="search-input" class="form-control search-bar" placeholder="Rechercher patient, pièce, motif...">
                 </div>
                 
                 <div id="visits-list" class="visits-grid"></div>
 
                 <div class="backup-panel">
-                    <div><strong>🎨 Personnalisation (En-tête & Cachet)</strong><p>Configurez les logos officiels.</p></div>
+                    <div><strong>🎨 En-tête & Cachet Médical</strong><p>Configurez vos signatures.</p></div>
                     <div style="display:flex; flex-direction:column; gap:10px; width:100%; max-width:350px;">
                         <div class="backup-actions"><button class="btn btn-outline" style="flex:1;" onclick="document.getElementById('personal-upload').click()">👨‍⚕️ Logo Personnel</button><input type="file" id="personal-upload" accept="image/*" style="display:none" onchange="app.handleImageUpload(event, 'docpocket_personal_logo', 'Logo personnel ajouté')"><button class="btn btn-danger" style="flex:none; padding:0 15px;" onclick="app.removeImage('docpocket_personal_logo', 'Effacer ?')">✖</button></div>
                         <div class="backup-actions"><button class="btn btn-outline" style="flex:1;" onclick="document.getElementById('logo-upload').click()">🖼️ Logo Application</button><input type="file" id="logo-upload" accept="image/*" style="display:none" onchange="app.handleImageUpload(event, 'docpocket_custom_logo', 'Logo app mis à jour')"><button class="btn btn-danger" style="flex:none; padding:0 15px;" onclick="app.removeImage('docpocket_custom_logo', 'Effacer ?')">✖</button></div>
-                        <div class="backup-actions"><button class="btn btn-outline" style="flex:1;" onclick="document.getElementById('partner-upload').click()">🤝 Logo Partenaire</button><input type="file" id="partner-upload" accept="image/*" style="display:none" onchange="app.handleImageUpload(event, 'docpocket_partner_logo', 'Logo partenaire ajouté')"><button class="btn btn-danger" style="flex:none; padding:0 15px;" onclick="app.removeImage('docpocket_partner_logo', 'Effacer ?')">✖</button></div>
-                        <div class="backup-actions"><button class="btn btn-outline" style="flex:1;" onclick="document.getElementById('sign-upload').click()">🖋️ Signature & Cachet</button><input type="file" id="sign-upload" accept="image/*" style="display:none" onchange="app.handleImageUpload(event, 'docpocket_custom_signature', 'Cachet enregistré')"><button class="btn btn-danger" style="flex:none; padding:0 15px;" onclick="app.removeImage('docpocket_custom_signature', 'Effacer ?')">✖</button></div>
+                        <div class="backup-actions"><button class="btn btn-outline" style="flex:1;" onclick="document.getElementById('partner-upload').click()">🤝 Logo Partenaire</button><input type="file" id="partner-upload" accept="image/*" style="display:none" onchange="app.handleImageUpload(event, 'docpocket_partner_logo', 'Logo partenaire configuré')"><button class="btn btn-danger" style="flex:none; padding:0 15px;" onclick="app.removeImage('docpocket_partner_logo', 'Effacer ?')">✖</button></div>
+                        <div class="backup-actions"><button class="btn btn-outline" style="flex:1;" onclick="document.getElementById('sign-upload').click()">🖋️ Signature & Cachet</button><input type="file" id="sign-upload" accept="image/*" style="display:none" onchange="app.handleImageUpload(event, 'docpocket_custom_signature', 'Cachet clinique enregistré')"><button class="btn btn-danger" style="flex:none; padding:0 15px;" onclick="app.removeImage('docpocket_custom_signature', 'Effacer ?')">✖</button></div>
                     </div>
                 </div>
 
                 <div class="backup-panel">
-                    <div><strong>📊 Bilan Mensuel Clinique</strong></div>
+                    <div><strong>📊 Bilan Net Mensuel Clinique</strong></div>
                     <div class="backup-actions">
                         <input type="month" id="report-month" class="form-control" style="flex:1; padding: 0.5rem;">
                         <button class="btn" onclick="app.generateMonthlyReport(event)" style="flex:1;">Générer le PDF</button>
@@ -215,11 +199,12 @@
                     </section>
 
                     <section class="form-section">
-                        <h2>Démographie</h2>
+                        <h2>Démographie & GDP</h2>
                         <div class="grid-2"><div class="form-group"><label>Nom et Prénom *</label><input type="text" id="patient-name" class="form-control" required></div><div class="form-group"><label>Origine / Ville</label><input type="text" id="patient-origin" class="form-control"></div></div>
-                        <div class="grid-2">
-                            <div class="form-group"><label>Type de pièce</label><select id="patient-doc-type" class="form-control"><option value="">Non renseigné...</option><option value="CIN">CIN</option><option value="Passeport">Passeport</option><option value="Carte de Séjour">Carte de Séjour</option><option value="Autre">Autre</option></select></div>
-                            <div class="form-group"><label>Numéro d'identification</label><input type="text" id="patient-doc-num" class="form-control" placeholder="Numéro..."></div>
+                        <div class="grid-3">
+                            <div class="form-group"><label>Type de pièce</label><select id="patient-doc-type" class="form-control"><option value="Passeport">Passeport</option><option value="CIN">CIN</option><option value="Carte de Séjour">Carte de Séjour</option><option value="Autre">Autre</option></select></div>
+                            <div class="form-group"><label>N° de pièce</label><input type="text" id="patient-doc-num" class="form-control" placeholder="N° de Passeport/CIN..."></div>
+                            <div class="form-group"><label>N° GDP (Prise en charge)</label><input type="text" id="visit-gdp" class="form-control" placeholder="Référence de couverture..."></div>
                         </div>
                         <div class="grid-3">
                             <div class="form-group"><label>Date de naissance</label><input type="text" id="patient-dob" class="form-control" placeholder="JJ/MM/AAAA" maxlength="10" inputmode="numeric" oninput="app.formatDOBAndCalculateAge(this)"></div>
@@ -240,7 +225,7 @@
                     </section>
 
                     <section class="form-section" id="scanner-section">
-                        <h2>📸 Pièces Jointes</h2>
+                        <h2>📸 Pièces Jointes & Explorations</h2>
                         <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                             <label for="camera-input" class="btn" style="flex: 1; text-align: center; cursor: pointer; padding: 12px 0;">📸 Photo</label>
                             <label for="gallery-input" class="btn btn-outline" style="flex: 1; text-align: center; cursor: pointer; background: white; padding: 12px 0;">📁 Image ou PDF</label>
@@ -250,9 +235,9 @@
                         
                         <div id="scanner-preview-section" class="hidden" style="background: #f9f9f9; padding: 15px; border: 1px dashed var(--primary-color); border-radius: 8px; margin-bottom: 15px;">
                             <img id="scanner-preview" class="preview-img hidden">
-                            <div id="scanner-preview-pdf-btn" class="hidden" style="text-align: center; padding: 20px; border: 2px dashed #003399; border-radius: 6px; margin-bottom: 10px; background: #e3f2fd; color: #003399; font-weight: bold;">📄 Document PDF chargé</div>
+                            <div id="scanner-preview-pdf-btn" class="hidden" style="text-align: center; padding: 20px; border: 2px dashed #003399; border-radius: 6px; margin-bottom: 10px; background: #e3f2fd; color: #003399; font-weight: bold;">📄 Fichier PDF importé</div>
                             
-                            <div class="form-group" style="margin-bottom: 10px;"><label>Intitulé du document :</label><input type="text" id="scan-name" class="form-control" placeholder="Ex: NFS, Cliché Thoracique..."></div>
+                            <div class="form-group" style="margin-bottom: 10px;"><label>Intitulé de la pièce :</label><input type="text" id="scan-name" class="form-control" placeholder="Ex: Rapport biologique, Radio..."></div>
                             <div style="display: flex; gap: 10px;"><button type="button" class="btn btn-success" style="flex: 1;" onclick="app.saveScan()">💾 Valider</button><button type="button" class="btn btn-danger-solid" style="flex: 1;" onclick="app.cancelScan()">❌ Annuler</button></div>
                         </div>
                         <div id="scans-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
@@ -261,12 +246,12 @@
                     <section class="form-section">
                         <h2>Constantes Vitales & Biométrie</h2>
                         <div class="grid-3">
-                            <div class="form-group"><label>Poids (kg)</label><input type="number" id="vital-weight" class="form-control" placeholder="kg" step="any"></div>
-                            <div class="form-group"><label>Taille (cm)</label><input type="number" id="vital-height" class="form-control" placeholder="cm"></div>
+                            <div class="form-group"><label>Poids (kg)</label><input type="number" id="vital-weight" class="form-control" step="any"></div>
+                            <div class="form-group"><label>Taille (cm)</label><input type="number" id="vital-height" class="form-control"></div>
                             <div class="form-group"><label>TA</label><input type="text" id="vital-bp" class="form-control" placeholder="ex: 12/8"></div>
-                            <div class="form-group"><label>Pouls (bpm)</label><input type="text" id="vital-pulse" class="form-control" placeholder="bpm"></div>
-                            <div class="form-group"><label>Température</label><input type="text" id="vital-temp" class="form-control" placeholder="°C"></div>
-                            <div class="form-group"><label>SpO2 (%)</label><input type="text" id="vital-spo2" class="form-control" placeholder="%"></div>
+                            <div class="form-group"><label>Pouls (bpm)</label><input type="text" id="vital-pulse" class="form-control"></div>
+                            <div class="form-group"><label>Température</label><input type="text" id="vital-temp" class="form-control"></div>
+                            <div class="form-group"><label>SpO2 (%)</label><input type="text" id="vital-spo2" class="form-control"></div>
                         </div>
                     </section>
                     
@@ -284,9 +269,27 @@
                     </section>
                     
                     <section class="form-section">
-                        <h2>Conduite à Tenir</h2>
+                        <h2>Conduite à Tenir & Couverture Assurantielle</h2>
                         <div class="form-group"><label>Plan Thérapeutique / Ordonnance</label><textarea id="prescription" class="form-control" style="min-height: 80px;"></textarea></div>
-                        <div class="form-group" style="max-width: 250px;"><label>Honoraires de l'acte (DT)</label><input type="number" id="visit-fee" class="form-control" step="any"></div>
+                        
+                        <div class="grid-3">
+                            <div class="form-group">
+                                <label>Nature de la couverture</label>
+                                <select id="visit-coverage" class="form-control" onchange="app.toggleFranchise()">
+                                    <option value="Payant">Payant</option>
+                                    <option value="Sans Franchise">Sans Franchise</option>
+                                    <option value="Avec Franchise">Avec Franchise</option>
+                                </select>
+                            </div>
+                            <div class="form-group hidden" id="franchise-box">
+                                <label>Montant de la franchise (DT)</label>
+                                <input type="number" id="visit-franchise" class="form-control" step="any" placeholder="0.000">
+                            </div>
+                            <div class="form-group">
+                                <label>Honoraires de l'acte (DT)</label>
+                                <input type="number" id="visit-fee" class="form-control" step="any" placeholder="0.000">
+                            </div>
+                        </div>
                     </section>
                     <div class="form-actions"><button type="submit" class="btn">💾 Enregistrer la consultation</button></div>
                 </form>
@@ -300,19 +303,20 @@
         
         <div id="modal-scan-pdf-container" class="hidden" style="background: white; padding: 25px; border-radius: 8px; text-align: center; width: 90%; max-width: 350px;">
             <p style="font-size: 3rem; margin-bottom: 10px;">📄</p>
-            <p style="margin-bottom: 20px; color: black; font-weight: bold;">Document PDF</p>
-            <button class="btn btn-success" id="modal-btn-open-pdf">Ouvrir le document</button>
+            <p style="margin-bottom: 20px; color: black; font-weight: bold;">Fichier d'exploration PDF</p>
+            <button class="btn btn-success" id="modal-btn-open-pdf">Visualiser le PDF</button>
         </div>
     </div>
 
     <script>
         const FIELDS = {
-            id: 'visit-id', name: 'patient-name', origin: 'patient-origin', docType: 'patient-doc-type', docNum: 'patient-doc-num',
+            id: 'visit-id', name: 'patient-name', origin: 'patient-origin', docType: 'patient-doc-type', docNum: 'patient-doc-num', gdp: 'visit-gdp', coverage: 'visit-coverage', franchise: 'visit-franchise',
             dob: 'patient-dob', age: 'patient-age', phone: 'patient-phone', reason: 'visit-reason', history: 'medical-history',
-            allergies: 'allergies', weight: 'vital-weight', height: 'vital-height', bp: 'vital-bp', pulse: 'vital-pulse', rr: 'vital-rr', 
+            allergies: 'allergies', weight: 'vital-weight', height: 'vital-height', bp: 'vital-bp', pulse: 'vital-pulse', rr: 'vital-pulse', 
             temp: 'vital-temp', spo2: 'vital-spo2', examGeneral: 'exam-general', examHemo: 'exam-hemo', examResp: 'exam-resp', 
             examNeuro: 'exam-neuro', examAbdo: 'exam-abdo', examOther: 'exam-other', examReco: 'exam-reco', prescription: 'prescription', fee: 'visit-fee'
         };
+        const EXAM_LABELS = { examGeneral: 'Plan Général', examHemo: 'Hémodynamique', examResp: 'Respiratoire', examNeuro: 'Neurologique', examAbdo: 'Abdominal', examOther: 'Divers' };
 
         const cryptoUtils = {
             async deriveKey(pin, salt) {
@@ -373,14 +377,14 @@
                 this.doctorName = localStorage.getItem('docpocket_doc_name') || 'Dr';
                 document.getElementById('app-title-display').textContent = `DocPocket Pro`;
                 localforage.config({ name: 'DocPocketPro', storeName: 'dossiers_scans' });
-                
                 await this.loadCustomImages();
                 if (window.isSecureContext && window.PublicKeyCredential) document.getElementById('btn-activate-bio').classList.remove('hidden');
-                if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').then(reg => { reg.update(); }).catch(()=>{}); }
-                window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); this.deferredPrompt = e; document.getElementById('pwa-install-banner').classList.remove('hidden'); });
-                
-                const now = new Date(); document.getElementById('report-month').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
                 this.renderDashboard(); document.getElementById('search-input').addEventListener('input', (e) => this.renderDashboard(e.target.value.toLowerCase()));
+            },
+
+            toggleFranchise() {
+                const cov = document.getElementById('visit-coverage').value;
+                document.getElementById('franchise-box').classList.toggle('hidden', cov !== 'Avec Franchise');
             },
 
             async loadCustomImages() {
@@ -395,18 +399,9 @@
                 reader.onload = async (e) => { await localforage.setItem(storageKey, e.target.result); await this.loadCustomImages(); alert("✅ " + successMsg); };
                 reader.readAsDataURL(file); event.target.value = '';
             },
-
             async removeImage(storageKey, confirmMsg) { if(confirm(confirmMsg)) { await localforage.removeItem(storageKey); await this.loadCustomImages(); } },
             
-            async purgeCacheAndReload() { 
-                if (confirm("Forcer la mise à jour globale et vider le cache ?")) { 
-                    try { 
-                        if ('caches' in window) { const keys = await caches.keys(); await Promise.all(keys.map(k => caches.delete(k))); } 
-                        if ('serviceWorker' in navigator) { const regs = await navigator.serviceWorker.getRegistrations(); for (let r of regs) await r.unregister(); } 
-                        window.location.reload(true); 
-                    } catch (err) { window.location.reload(true); } 
-                } 
-            },
+            async purgeCacheAndReload() { window.location.reload(true); },
 
             async saveData() { try { const encrypted = await cryptoUtils.encrypt(JSON.stringify(this.visits), auth.currentPinInput); localStorage.setItem(this.STORAGE_KEY, encrypted); } catch(e) { alert("Erreur d'écriture sécurisée."); } },
 
@@ -416,12 +411,13 @@
                 const pVisits = this.visits.filter(v => v.name.trim().toLowerCase() === patientName.trim().toLowerCase()).sort((a,b) => (new Date(b.date).getTime()||0) - (new Date(a.date).getTime()||0));
                 this.showForm(); 
                 if(pVisits[0]) {
-                    const fieldsToKeep = ['name', 'origin', 'docType', 'docNum', 'dob', 'age', 'phone', 'history', 'allergies', 'weight', 'height'];
+                    const fieldsToKeep = ['name', 'origin', 'docType', 'docNum', 'gdp', 'coverage', 'franchise', 'dob', 'age', 'phone', 'history', 'allergies', 'weight', 'height'];
                     fieldsToKeep.forEach(k => { const el = document.getElementById(FIELDS[k]); if(el) el.value = pVisits[0][k] || ''; });
+                    this.toggleFranchise();
                 }
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             },
-            newVisitForSamePatient() { const name = document.getElementById('patient-name').value; if(name && confirm("Nouvelle consultation pour ce patient ?")) this.newVisitForPatient(name); },
+            newVisitForSamePatient() { const name = document.getElementById('patient-name').value; if(name && confirm("Nouvelle consultation ?")) this.newVisitForPatient(name); },
 
             formatDateInput(input) {
                 let v = input.value.replace(/\D/g, ''); 
@@ -451,17 +447,9 @@
                 const file = event.target.files[0]; if (!file) return; const reader = new FileReader();
                 reader.onload = (e) => {
                     this.tempScanBase64 = e.target.result; this.tempScanType = file.type;
-                    const img = document.getElementById('scanner-preview');
-                    const pdfBtn = document.getElementById('scanner-preview-pdf-btn');
-                    
-                    if (file.type === 'application/pdf') { 
-                        img.classList.add('hidden'); 
-                        pdfBtn.classList.remove('hidden'); 
-                    } else { 
-                        pdfBtn.classList.add('hidden'); 
-                        img.classList.remove('hidden'); 
-                        img.src = this.tempScanBase64; 
-                    }
+                    const img = document.getElementById('scanner-preview'); const pdfBtn = document.getElementById('scanner-preview-pdf-btn');
+                    if (file.type === 'application/pdf') { img.classList.add('hidden'); pdfBtn.classList.remove('hidden'); } 
+                    else { pdfBtn.classList.add('hidden'); img.classList.remove('hidden'); img.src = this.tempScanBase64; }
                     document.getElementById('scanner-preview-section').classList.remove('hidden'); document.getElementById('scan-name').focus();
                 }; reader.readAsDataURL(file); event.target.value = ''; 
             },
@@ -481,109 +469,77 @@
                     list.innerHTML += `<div class="scan-item"><div style="flex:1; cursor:pointer;" onclick="app.openScanViewer(${s.id})"><strong style="color: var(--secondary-color);">${icon} ${s.name}</strong><br><span style="font-size:0.8rem; color:#666;">Ajouté le ${s.date}</span></div><div style="display: flex; gap: 5px;"><button type="button" class="btn btn-outline" style="padding: 6px 12px; background: white;" onclick="app.editScan(${s.id})">✏️</button><button type="button" class="btn btn-danger" style="padding: 6px 12px;" onclick="app.deleteScan(${s.id})">🗑️</button></div></div>`;
                 });
             },
-            
             openScanViewer(id) {
                 const s = this.currentScans.find(x => x.id === id); if (!s) return;
                 document.getElementById('modal-scan-title').textContent = s.name; document.getElementById('modal-scan-date').textContent = s.date;
-                
-                const img = document.getElementById('modal-scan-img');
-                const pdfContainer = document.getElementById('modal-scan-pdf-container');
+                const img = document.getElementById('modal-scan-img'); const pdfContainer = document.getElementById('modal-scan-pdf-container');
                 const pdfBtn = document.getElementById('modal-btn-open-pdf');
-                
                 if (s.type === 'application/pdf' || s.image.startsWith('data:application/pdf')) { 
-                    img.classList.add('hidden'); 
-                    pdfContainer.classList.remove('hidden'); 
-                    
+                    img.classList.add('hidden'); pdfContainer.classList.remove('hidden'); 
                     pdfBtn.onclick = () => {
                         try {
-                            const byteCharacters = atob(s.image.split(',')[1]);
-                            const byteNumbers = new Array(byteCharacters.length);
+                            const byteCharacters = atob(s.image.split(',')[1]); const byteNumbers = new Array(byteCharacters.length);
                             for (let i = 0; i < byteCharacters.length; i++) { byteNumbers[i] = byteCharacters.charCodeAt(i); }
-                            const byteArray = new Uint8Array(byteNumbers);
-                            const fileBlob = new Blob([byteArray], { type: 'application/pdf' });
-                            const fileURL = URL.createObjectURL(fileBlob);
-                            window.open(fileURL, '_blank');
-                        } catch(e) { alert("Impossible d'ouvrir ce PDF."); }
+                            const byteArray = new Uint8Array(byteNumbers); const fileBlob = new Blob([byteArray], { type: 'application/pdf' });
+                            const fileURL = URL.createObjectURL(fileBlob); window.open(fileURL, '_blank');
+                        } catch(e) { alert("Erreur d'ouverture."); }
                     };
-                } else { 
-                    pdfContainer.classList.add('hidden'); 
-                    img.classList.remove('hidden'); 
-                    img.src = s.image; 
-                }
+                } else { pdfContainer.classList.add('hidden'); img.classList.remove('hidden'); img.src = s.image; }
                 document.getElementById('view-scan-modal').classList.remove('hidden');
             },
             closeScanViewer() { document.getElementById('view-scan-modal').classList.add('hidden'); document.getElementById('modal-scan-img').src = ""; },
 
             async saveVisit(e) {
                 if (e) e.preventDefault(); 
-                if (!document.getElementById('patient-name').value.trim() || !document.getElementById('visit-reason').value.trim()) return alert("⚠️ Nom et motif obligatoires.");
+                if (!document.getElementById('patient-name').value.trim() || !document.getElementById('visit-reason').value.trim()) return alert("Nom et motif requis.");
                 try {
-                    if (!Array.isArray(this.visits)) this.visits = [];
                     const isNew = !document.getElementById('visit-id').value;
                     const vId = isNew ? Date.now().toString() : document.getElementById('visit-id').value;
-                    
                     const dInput = document.getElementById('visit-date').value; const tInput = document.getElementById('visit-time').value || "00:00";
-                    let dateVisite; 
+                    let dateVisite;
                     try { 
-                        const parts = dInput.split('/');
-                        if(parts.length === 3) dateVisite = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T${tInput}:00`).toISOString();
-                        else dateVisite = new Date().toISOString();
+                        const parts = dInput.split('/'); dateVisite = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T${tInput}:00`).toISOString();
                     } catch(err) { dateVisite = new Date().toISOString(); }
-
                     const v = { id: String(vId), date: dateVisite, updatedAt: Date.now() };
-                    
-                    for(let key in FIELDS) { 
-                        if(key !== 'id') {
-                            const el = document.getElementById(FIELDS[key]);
-                            v[key] = el ? el.value : ''; 
-                        }
-                    }
-
-                    if (isNew) this.visits.unshift(v); 
-                    else { const idx = this.visits.findIndex(x => String(x.id) === String(v.id)); if(idx !== -1) this.visits[idx] = v; }
-                    
+                    for(let key in FIELDS) { if(key !== 'id') { const el = document.getElementById(FIELDS[key]); v[key] = el ? el.value : ''; } }
+                    if (isNew) this.visits.unshift(v); else { const idx = this.visits.findIndex(x => String(x.id) === String(v.id)); if(idx !== -1) this.visits[idx] = v; }
                     await localforage.setItem('scans_' + vId, this.currentScans);
                     await this.saveData(); this.showDashboard(); window.scrollTo({ top: 0, behavior: 'smooth' });
-                } catch (erreur) { alert("Erreur technique : " + erreur.message); }
+                } catch (erreur) { alert("Erreur de sauvegarde."); }
             },
 
-            async deleteVisit(id) { if (confirm("Supprimer définitivement cette consultation ?")) { this.visits = this.visits.filter(v => v.id !== id); await localforage.removeItem('scans_' + id); await this.saveData(); this.renderDashboard(); } },
-
+            async deleteVisit(id) { if (confirm("Supprimer cette consultation ?")) { this.visits = this.visits.filter(v => v.id !== id); await localforage.removeItem('scans_' + id); await this.saveData(); this.renderDashboard(); } },
             showDashboard() { document.getElementById('form-view').classList.add('hidden'); document.getElementById('dashboard-view').classList.remove('hidden'); this.renderDashboard(); },
 
             async showForm(id = null) {
                 document.getElementById('dashboard-view').classList.add('hidden'); document.getElementById('form-view').classList.remove('hidden');
                 document.getElementById('consultation-form').reset(); document.getElementById('visit-id').value = ''; this.cancelScan();
-                
-                const histSection = document.getElementById('patient-history-section'); const histList = document.getElementById('patient-history-list'); const btnNewFollowup = document.getElementById('btn-new-followup');
-                if (histSection) histSection.style.display = 'none'; if (btnNewFollowup) btnNewFollowup.style.display = 'none'; if (histList) histList.innerHTML = '';
-                
+                document.getElementById('patient-history-section').style.display = 'none'; document.getElementById('btn-new-followup').style.display = 'none';
                 if (id) { 
-                    if (btnNewFollowup) btnNewFollowup.style.display = 'block';
+                    document.getElementById('btn-new-followup').style.display = 'block';
                     const v = this.visits.find(x => x.id === id); 
                     if (v) {
                         for(let key in FIELDS) { const el = document.getElementById(FIELDS[key]); if(el) el.value = v[key] || ''; }
-                        
                         let vDate = new Date(v.date); if(isNaN(vDate.getTime())) vDate = new Date();
                         document.getElementById('visit-date').value = `${String(vDate.getDate()).padStart(2,'0')}/${String(vDate.getMonth()+1).padStart(2,'0')}/${vDate.getFullYear()}`;
                         document.getElementById('visit-time').value = vDate.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
-                        
-                        const pName = v.name.toLowerCase().trim();
-                        const pastVisits = this.visits.filter(x => x.name.toLowerCase().trim() === pName && x.id !== id);
-                        if (pastVisits.length > 0 && histSection && histList) {
-                            histSection.style.display = 'block';
-                            pastVisits.sort((a,b) => (new Date(b.date).getTime()||0) - (new Date(a.date).getTime()||0)).forEach(pv => {
+                        this.toggleFranchise();
+                        const pName = v.name.toLowerCase().trim(); const pastVisits = this.visits.filter(x => x.name.toLowerCase().trim() === pName && x.id !== id);
+                        if (pastVisits.length > 0) {
+                            document.getElementById('patient-history-section').style.display = 'block';
+                            const histList = document.getElementById('patient-history-list'); histList.innerHTML = '';
+                            pastVisits.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(pv => {
                                 const pvDate = new Date(pv.date);
-                                histList.innerHTML += `<div style="background: #f4f7f6; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;" onclick="app.showForm('${pv.id}')"><div><strong style="color:var(--primary-color);">${pvDate.toLocaleDateString('fr-FR')} à ${pvDate.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})}</strong> - ${pv.reason}</div><button type="button" class="btn btn-outline" style="padding: 4px 8px; font-size: 0.8rem;">Ouvrir</button></div>`;
+                                histList.innerHTML += `<div style="background: #ffffff; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; display: flex; justify-content: space-between; align-items: center;" onclick="app.showForm('${pv.id}')"><div><strong style="color:var(--primary-color);">${pvDate.toLocaleDateString('fr-FR')}</strong> - ${pv.reason}</div><button type="button" class="btn btn-outline" style="padding:4px 8px; width:auto; margin:0;">Ouvrir</button></div>`;
                             });
                         }
                     }
                     this.currentScans = (await localforage.getItem('scans_' + id)) || [];
                 } else { 
-                    this.currentScans = []; 
-                    const now = new Date();
+                    this.currentScans = []; const now = new Date();
                     document.getElementById('visit-date').value = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
                     document.getElementById('visit-time').value = now.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+                    document.getElementById('visit-coverage').value = 'Payant'; this.toggleFranchise();
                 }
                 this.renderScansList(); window.scrollTo({ top: 0, behavior: 'smooth' });
             },
@@ -592,17 +548,8 @@
                 try {
                     const data = localStorage.getItem(this.STORAGE_KEY); if(!data) return alert("Base vide.");
                     const scansData = {}; await localforage.iterate((value, key) => { scansData[key] = value; });
-                    const blob = new Blob([JSON.stringify({ visits: data, scans: scansData })], { type: "application/json" });
-                    
-                    const url = URL.createObjectURL(blob); 
-                    const a = document.createElement('a'); 
-                    a.style.display = 'none'; 
-                    a.href = url; 
-                    a.download = `DocPocket_Sync_${new Date().toISOString().slice(0,10)}.json`;
-                    document.body.appendChild(a); 
-                    a.click(); 
-                    setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(url); }, 100);
-                } catch (e) { alert("Erreur d'exportation."); }
+                    downloadJSON(`DocPocket_Sync_${new Date().toISOString().slice(0,10)}.json`, JSON.stringify({ visits: data, scans: scansData }));
+                } catch (e) { alert("Erreur."); }
             },
 
             importBackup(e) {
@@ -610,346 +557,216 @@
                 reader.onload = async (ev) => {
                     const content = ev.target.result.trim();
                     try {
-                        let parsedData;
-                        try { parsedData = JSON.parse(content); } catch(err) { parsedData = null; }
-
+                        let parsedData = JSON.parse(content);
                         if (parsedData && parsedData.visits) {
-                            const decTxt = await cryptoUtils.decrypt(parsedData.visits, auth.currentPinInput); 
-                            const impV = JSON.parse(decTxt);
+                            const decTxt = await cryptoUtils.decrypt(parsedData.visits, auth.currentPinInput); const impV = JSON.parse(decTxt);
                             if (confirm("🔄 Lancer la restauration des données ?")) { 
                                 impV.forEach(iv => {
                                     const idx = this.visits.findIndex(v => String(v.id) === String(iv.id));
-                                    if (idx === -1) this.visits.push(iv);
-                                    else {
-                                        const cUpdate = this.visits[idx].updatedAt || new Date(this.visits[idx].date).getTime();
-                                        const iUpdate = iv.updatedAt || new Date(iv.date).getTime();
-                                        if (iUpdate > cUpdate) this.visits[idx] = iv;
-                                    }
+                                    if (idx === -1) this.visits.push(iv); else { if ((iv.updatedAt||0) > (this.visits[idx].updatedAt||0)) this.visits[idx] = iv; }
                                 });
-                                this.visits.sort((a, b) => (new Date(b.date).getTime()||0) - (new Date(a.date).getTime()||0)); 
-                                await this.saveData();
-                                
-                                if (parsedData.scans) {
-                                    for (const k in parsedData.scans) {
-                                        if (k.startsWith('docpocket_')) { await localforage.setItem(k, parsedData.scans[k]); continue; }
-                                        const iScans = parsedData.scans[k] || []; const cScans = (await localforage.getItem(k)) || [];
-                                        const uniq = [...cScans, ...iScans].reduce((acc, curr) => { if(!acc.find(i=>i.id===curr.id)) acc.push(curr); return acc; }, []);
-                                        await localforage.setItem(k, uniq);
-                                    }
-                                }
+                                this.visits.sort((a, b) => new Date(b.date) - new Date(a.date)); await this.saveData();
+                                if (parsedData.scans) { for (const k in parsedData.scans) { await localforage.setItem(k, parsedData.scans[k]); } }
                                 alert("✅ Restauration réussie !"); window.location.reload(); 
                             }
-                        } else {
-                            await cryptoUtils.decrypt(content, auth.currentPinInput); 
-                            if (confirm("⚠️ Format de sauvegarde direct détecté. Restaurer cette base ?")) { 
-                                localStorage.setItem(this.STORAGE_KEY, content); 
-                                window.location.reload(); 
-                            }
                         }
-                    } catch (err) { alert("❌ Code PIN incorrect ou fichier illisible."); }
-                }; reader.readAsText(file); e.target.value = ''; 
+                    } catch (err) { alert("❌ Code PIN invalide ou fichier corrompu."); }
+                }; reader.readAsText(file);
             },
 
             // ====================================================================
-            // GENERATEUR DE PDF NATIF PUR JS (MÉTHODE B CHIRURGICALE)
+            // LOGIQUE DE RENDER GRAPHIOUE (SOLUTION B)
             // ====================================================================
-
             drawProportionalImage(doc, base64, x, y, maxW, maxH, align="left") {
                 try {
-                    const props = doc.getImageProperties(base64);
-                    const ratio = props.width / props.height;
-                    const format = props.fileType || 'JPEG'; 
-                    
-                    let w = maxW;
-                    let h = w / ratio;
-                    
-                    if (h > maxH) { 
-                        h = maxH; 
-                        w = h * ratio; 
-                    }
-                    
-                    let finalX = x;
-                    if (align === "right") finalX = x - w;
-                    else if (align === "center") finalX = x - (w / 2);
-                    
-                    doc.addImage(base64, format, finalX, y, w, h);
-                    return h;
+                    const props = doc.getImageProperties(base64); const ratio = props.width / props.height; const format = props.fileType || 'JPEG';
+                    let w = maxW; let h = w / ratio; if (h > maxH) { h = maxH; w = h * ratio; }
+                    let finalX = x; if (align === "right") finalX = x - w; else if (align === "center") finalX = x - (w / 2);
+                    doc.addImage(base64, format, finalX, y, w, h); return h;
                 } catch(e) { return 0; }
             },
 
             async executeSavePDF(method) {
-                document.getElementById('save-pdf-modal').classList.add('hidden');
-                const { blob, filename } = this.pendingPDF;
-                if (!blob) return;
-
+                document.getElementById('save-pdf-modal').classList.add('hidden'); const { blob, filename } = this.pendingPDF; if (!blob) return;
                 if (method === 'download') {
-                    const url = URL.createObjectURL(blob); 
-                    const a = document.createElement('a'); 
-                    a.style.display = 'none'; 
-                    a.href = url; 
-                    a.download = filename;
-                    document.body.appendChild(a); 
-                    a.click(); 
-                    setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(url); }, 100);
+                    const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.style.display = 'none'; a.href = url; a.download = filename;
+                    document.body.appendChild(a); a.click(); setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(url); }, 100);
                 } else if (method === 'share') {
                     const file = new File([blob], filename, { type: 'application/pdf' });
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        try { await navigator.share({ files: [file], title: filename }); } catch(e) { console.log("Partage annulé"); }
-                    } else {
-                        alert("Le menu d'emplacement natif n'est pas supporté par ce navigateur. Le fichier va être téléchargé.");
-                        this.executeSavePDF('download');
-                    }
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], title: filename }); } catch(e){} } 
+                    else { alert("Partage non supporté, téléchargement direct lancé."); this.executeSavePDF('download'); }
                 }
             },
 
-            async generateMonthlyReport(event) {
-                const [y, m] = document.getElementById('report-month').value.split('-'); if(!y) return;
-                const filtered = this.visits.filter(v => new Date(v.date).getFullYear() == y && new Date(v.date).getMonth() == m - 1).sort((a, b) => (new Date(a.date).getTime()||0) - (new Date(b.date).getTime()||0));
-                
-                if (filtered.length === 0) return alert("Aucun acte enregistré ce mois.");
-
-                let btnText = "Générer le PDF"; if (event && event.target) { btnText = event.target.innerText; event.target.innerText = "⏳..."; }
-                
+            // CORRECTIF APPLIQUÉ : AJOUT DE L'HEURE DE LA CONSULTATION DANS LA NOTE D'HONORAIRE
+            async generateNoteHonoraire(id, buttonElement) {
+                const v = this.visits.find(x => x.id === id); if (!v) return; let vDate = new Date(v.date); if(isNaN(vDate.getTime())) vDate = new Date();
+                let btnText = "📄 Honoraire"; if (buttonElement) { btnText = buttonElement.innerText; buttonElement.innerText = "⏳..."; }
                 try {
-                    const { jsPDF } = window.jspdf;
-                    const doc = new jsPDF();
-                    
-                    doc.setFont("times", "normal");
-                    
-                    const perBase = await localforage.getItem('docpocket_personal_logo');
-                    const parBase = await localforage.getItem('docpocket_partner_logo');
-                    const lBase = await localforage.getItem('docpocket_custom_logo');
-
+                    const { jsPDF } = window.jspdf; const doc = new jsPDF(); doc.setFont("times", "normal");
+                    const lBase = await localforage.getItem('docpocket_custom_logo'); const perBase = await localforage.getItem('docpocket_personal_logo');
+                    const parBase = await localforage.getItem('docpocket_partner_logo'); const sigBase = await localforage.getItem('docpocket_custom_signature');
                     if(perBase) this.drawProportionalImage(doc, perBase, 15, 10, 30, 20, "left");
                     if(parBase) this.drawProportionalImage(doc, parBase, 195, 10, 30, 20, "right");
                     if(lBase && lBase !== "icon-512.png?v=3") this.drawProportionalImage(doc, lBase, 105, 10, 20, 15, "center");
                     
-                    doc.setFontSize(18);
-                    doc.setFont("times", "bold");
-                    doc.text("Journal des Honoraires", 105, 35, { align: "center" });
+                    doc.setFontSize(18); doc.setFont("times", "bold"); doc.text("NOTE D'HONORAIRES", 105, 35, { align: "center" });
                     
-                    doc.setFontSize(13);
-                    doc.setFont("times", "normal");
-                    doc.text(`Période : ${m}/${y}`, 105, 42, { align: "center" });
-                    doc.text(`Édité par : ${this.doctorName}`, 105, 48, { align: "center" });
+                    // Ligne modifiée pour inclure l'heure exacte de la consultation
+                    doc.setFontSize(13); doc.setFont("times", "normal"); 
+                    doc.text(`Date : ${vDate.toLocaleDateString('fr-FR')} à ${vDate.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})}`, 105, 42, { align: "center" });
+                    
+                    doc.line(15, 46, 195, 46); let y = 60;
+                    
+                    doc.setFont("times", "bold"); doc.text("Informations Patient", 15, y); doc.line(15, y+2, 70, y+2); y += 10;
+                    doc.setFont("times", "bold"); doc.text("Nom et Prénom :", 15, y); doc.setFont("times", "normal"); doc.text(v.name || '-', 60, y); y += 8;
+                    doc.setFont("times", "bold"); doc.text("Pièce d'identité :", 15, y); doc.setFont("times", "normal"); doc.text(`${v.docType || 'Passeport'} : ${v.docNum || '-'}`, 60, y); y += 8;
+                    doc.setFont("times", "bold"); doc.text("N° GDP (Prise en charge) :", 15, y); doc.setFont("times", "normal"); doc.text(v.gdp || 'N/A', 75, y); y += 15;
+                    
+                    doc.setFont("times", "bold"); doc.text("Facturation & Mode de Couverture", 15, y); doc.line(15, y+2, 85, y+2); y += 10;
+                    doc.setFont("times", "bold"); doc.text("Prise en charge :", 15, y); doc.setFont("times", "normal"); doc.text(v.coverage || 'Payant', 60, y); y += 15;
+                    
+                    let fee = parseFloat(v.fee) || 0; let franchise = parseFloat(v.franchise) || 0; let net = fee;
+                    if (v.coverage === 'Avec Franchise') { net = fee - franchise; }
+                    
+                    doc.autoTable({
+                        startY: y, head: [['Désignation de l\'acte', 'Montant Unique']],
+                        body: [
+                            ['Honoraires de consultation médicale', fee.toFixed(3) + ' DT'],
+                            ...(v.coverage === 'Avec Franchise' ? [['Déduction Franchise Obligatoire', '- ' + franchise.toFixed(3) + ' DT']] : [])
+                        ],
+                        theme: 'grid', headStyles: { fillColor: [0, 51, 153], font: "times", fontSize: 13 },
+                        styles: { font: "times", fontSize: 12 }, columnStyles: { 1: { halign: 'right' } }
+                    });
+                    
+                    y = doc.lastAutoTable.finalY + 15; doc.setFont("times", "bold"); doc.setFontSize(14);
+                    doc.text(`Net à charge du patient / de l'assureur : ${net.toFixed(3)} DT`, 195, y, { align: "right" });
+                    
+                    y += 15; doc.setFont("times", "bold"); doc.setFontSize(13); doc.text("Cachet et Autorité Médicale :", 195, y, { align: "right" }); y += 5;
+                    if(sigBase) { const sigH = this.drawProportionalImage(doc, sigBase, 195, y, 45, 30, "right"); y += sigH + 5; } else { y += 15; }
+                    doc.setFont("times", "normal"); doc.text(this.doctorName, 195, y, { align: "right" });
+
+                    this.pendingPDF.blob = doc.output('blob'); this.pendingPDF.filename = `Note_Honoraires_${(v.name||'Patient').replace(/\s+/g, '_')}.pdf`;
+                    document.getElementById('save-pdf-modal').classList.remove('hidden');
+                } catch(err) { alert("Erreur d'exportation."); } finally { if (buttonElement) buttonElement.innerText = btnText; }
+            },
+
+            // JOURNAL NET MENSUEL
+            async generateMonthlyReport(event) {
+                const [y, m] = document.getElementById('report-month').value.split('-'); if(!y) return;
+                const filtered = this.visits.filter(v => new Date(v.date).getFullYear() == y && new Date(v.date).getMonth() == m - 1).sort((a, b) => new Date(a.date) - new Date(b.date));
+                if (filtered.length === 0) return alert("Aucun acte ce mois.");
+                let btnText = "Générer le PDF"; if (event && event.target) { btnText = event.target.innerText; event.target.innerText = "⏳..."; }
+                try {
+                    const { jsPDF } = window.jspdf; const doc = new jsPDF(); doc.setFont("times", "normal");
+                    const perBase = await localforage.getItem('docpocket_personal_logo'); const parBase = await localforage.getItem('docpocket_partner_logo'); const lBase = await localforage.getItem('docpocket_custom_logo');
+                    if(perBase) this.drawProportionalImage(doc, perBase, 15, 10, 30, 20, "left");
+                    if(parBase) this.drawProportionalImage(doc, parBase, 195, 10, 30, 20, "right");
+                    if(lBase && lBase !== "icon-512.png?v=3") this.drawProportionalImage(doc, lBase, 105, 10, 20, 15, "center");
+                    
+                    doc.setFontSize(18); doc.setFont("times", "bold"); doc.text("Journal des Honoraires Nets", 105, 35, { align: "center" });
+                    doc.setFontSize(13); doc.setFont("times", "normal"); doc.text(`Période du : ${m}/${y} | Édité par : ${this.doctorName}`, 105, 43, { align: "center" });
 
                     const tableBody = filtered.map(v => {
                         let vDate = new Date(v.date); if(isNaN(vDate.getTime())) vDate = new Date();
-                        const dateStr = vDate.toLocaleDateString('fr-FR');
-                        const fee = parseFloat(v.fee) || 0;
-                        return [dateStr, v.name, v.reason, fee > 0 ? fee.toFixed(3) + ' DT' : '-'];
+                        let fee = parseFloat(v.fee) || 0; let franchise = parseFloat(v.franchise) || 0;
+                        let net = (v.coverage === 'Avec Franchise') ? (fee - franchise) : fee;
+                        return [vDate.toLocaleDateString('fr-FR'), v.name, `${v.reason} (${v.coverage})`, net.toFixed(3) + ' DT'];
                     });
 
                     doc.autoTable({
-                        startY: 55,
-                        head: [['Date', 'Patient', 'Motif', 'Montant']],
-                        body: tableBody,
-                        theme: 'grid',
-                        headStyles: { fillColor: [0, 51, 153], font: "times", fontSize: 13 },
-                        styles: { font: "times", fontSize: 12 },
-                        columnStyles: { 3: { halign: 'right', fontStyle: 'bold' } }
+                        startY: 52, head: [['Date', 'Patient', 'Motif & Couverture', 'Montant Net']], body: tableBody, theme: 'grid',
+                        headStyles: { fillColor: [0, 51, 153], font: "times", fontSize: 13 }, styles: { font: "times", fontSize: 12 }, columnStyles: { 3: { halign: 'right', fontStyle: 'bold' } }
                     });
 
-                    let total = filtered.reduce((sum, v) => sum + (parseFloat(v.fee) || 0), 0);
-                    let finalY = (doc.autoTable && doc.autoTable.previous) ? doc.autoTable.previous.finalY + 15 : 100;
-                    if(doc.lastAutoTable) finalY = doc.lastAutoTable.finalY + 15;
+                    let totalNet = filtered.reduce((sum, v) => {
+                        let fee = parseFloat(v.fee) || 0; let franchise = parseFloat(v.franchise) || 0;
+                        return sum + ((v.coverage === 'Avec Franchise') ? (fee - franchise) : fee);
+                    }, 0);
                     
-                    doc.setFont("times", "bold");
-                    doc.setFontSize(14);
-                    doc.text(`Total mensuel : ${total.toFixed(3)} DT`, 195, finalY, { align: "right" });
+                    let finalY = doc.lastAutoTable.finalY + 15; doc.setFont("times", "bold"); doc.setFontSize(14);
+                    doc.text(`Total comptable mensuel Net : ${totalNet.toFixed(3)} DT`, 195, finalY, { align: "right" });
                     
                     const sigBase = await localforage.getItem('docpocket_custom_signature');
-                    if (sigBase) {
-                        this.drawProportionalImage(doc, sigBase, 195, finalY + 5, 45, 30, "right");
-                    }
+                    if (sigBase) this.drawProportionalImage(doc, sigBase, 195, finalY + 5, 45, 30, "right");
 
-                    this.pendingPDF.blob = doc.output('blob');
-                    this.pendingPDF.filename = `Journal_Honoraires_${m}-${y}.pdf`;
+                    this.pendingPDF.blob = doc.output('blob'); this.pendingPDF.filename = `Journal_Nets_${m}-${y}.pdf`;
                     document.getElementById('save-pdf-modal').classList.remove('hidden');
-
-                } catch(err) {
-                    alert("Erreur d'impression du bilan mensuel : " + err.message);
-                } finally { 
-                    if (event && event.target) event.target.innerText = btnText; 
-                }
+                } catch(err) { alert("Erreur."); } finally { if (event && event.target) event.target.innerText = btnText; }
             },
 
+            // RAPPORT MÉDICAL CLINIQUE TRADITIONNEL (警察 TAILLE 13 EXIGÉE)
             async generatePDF(id, buttonElement) {
-                const v = this.visits.find(x => x.id === id); if (!v) return;
-                let vDate = new Date(v.date); if(isNaN(vDate.getTime())) vDate = new Date();
-                
-                let btnText = "📄 PDF"; if (buttonElement) { btnText = buttonElement.innerText; buttonElement.innerText = "⏳..."; }
-
+                const v = this.visits.find(x => x.id === id); if (!v) return; let vDate = new Date(v.date); if(isNaN(vDate.getTime())) vDate = new Date();
+                let btnText = "📄 Médical"; if (buttonElement) { btnText = buttonElement.innerText; buttonElement.innerText = "⏳..."; }
                 try {
-                    const { jsPDF } = window.jspdf;
-                    const doc = new jsPDF();
-                    
-                    doc.setFont("times", "normal"); 
-                    
-                    const lBase = await localforage.getItem('docpocket_custom_logo');
-                    const perBase = await localforage.getItem('docpocket_personal_logo');
-                    const parBase = await localforage.getItem('docpocket_partner_logo');
-                    const sigBase = await localforage.getItem('docpocket_custom_signature');
-
+                    const { jsPDF } = window.jspdf; const doc = new jsPDF(); doc.setFont("times", "normal");
+                    const lBase = await localforage.getItem('docpocket_custom_logo'); const perBase = await localforage.getItem('docpocket_personal_logo');
+                    const parBase = await localforage.getItem('docpocket_partner_logo'); const sigBase = await localforage.getItem('docpocket_custom_signature');
                     if(perBase) this.drawProportionalImage(doc, perBase, 15, 10, 30, 20, "left");
                     if(parBase) this.drawProportionalImage(doc, parBase, 195, 10, 30, 20, "right");
                     if(lBase && lBase !== "icon-512.png?v=3") this.drawProportionalImage(doc, lBase, 105, 10, 20, 15, "center");
                     
-                    doc.setFontSize(18);
-                    doc.setFont("times", "bold");
-                    doc.text("Rapport de Consultation", 105, 35, { align: "center" });
-                    
-                    doc.setFontSize(13);
-                    doc.setFont("times", "normal");
-                    doc.text(`Le ${vDate.toLocaleDateString('fr-FR')} à ${vDate.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})}`, 105, 42, { align: "center" });
-
-                    doc.line(15, 46, 195, 46);
-
-                    let y = 55;
+                    doc.setFontSize(18); doc.setFont("times", "bold"); doc.text("Rapport de Consultation Clinique", 105, 35, { align: "center" });
+                    doc.setFontSize(13); doc.setFont("times", "normal"); doc.text(`Le ${vDate.toLocaleDateString('fr-FR')} à ${vDate.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})}`, 105, 42, { align: "center" });
+                    doc.line(15, 46, 195, 46); let y = 55;
                     
                     const addLine = (label, text, x = 15, isBoldText = false) => {
-                        if(!text || text.trim() === '') return;
-                        if (y > 270) { doc.addPage(); y = 20; }
-                        
-                        doc.setFont("times", "bold");
-                        doc.text(label, x, y);
-                        
-                        doc.setFont("times", isBoldText ? "bold" : "normal");
-                        const labelWidth = doc.getTextWidth(label + " ");
-                        const lines = doc.splitTextToSize(String(text), 195 - x - labelWidth);
-                        doc.text(lines, x + labelWidth, y);
-                        
-                        y += (lines.length * 6);
+                        if(!text || text.trim() === '') return; if (y > 270) { doc.addPage(); y = 20; }
+                        doc.setFont("times", "bold"); doc.text(label, x, y); doc.setFont("times", isBoldText ? "bold" : "normal");
+                        const labelWidth = doc.getTextWidth(label + " "); const lines = doc.splitTextToSize(String(text), 195 - x - labelWidth);
+                        doc.text(lines, x + labelWidth, y); y += (lines.length * 6);
                     };
 
-                    addLine("Nom Patient :", v.name, 15, true);
-                    doc.setFont("times", "bold"); doc.text("Âge :", 120, y - 6); doc.setFont("times", "normal"); doc.text(v.age || '-', 135, y - 6);
-                    y += 2;
-                    
-                    addLine("Document :", (v.docType && v.docNum) ? `${v.docType} : ${v.docNum}` : (v.docType || v.docNum || '-'), 15);
-                    doc.setFont("times", "bold"); doc.text("Téléphone :", 120, y - 6); doc.setFont("times", "normal"); doc.text(v.phone || '-', 145, y - 6);
-                    y += 2;
-                    
-                    addLine("Motif :", v.reason, 15);
-                    y += 5;
+                    doc.setFontSize(13);
+                    addLine("Nom Patient :", v.name, 15, true); doc.setFont("times", "bold"); doc.text("Âge :", 120, y - 6); doc.setFont("times", "normal"); doc.text(v.age || '-', 135, y - 6); y += 2;
+                    addLine("Identifiant :", `${v.docType || 'Passeport'} : ${v.docNum || '-'}`, 15); doc.setFont("times", "bold"); doc.text("N° GDP :", 120, y - 6); doc.setFont("times", "normal"); doc.text(v.gdp || 'N/A', 140, y - 6); y += 2;
+                    addLine("Motif :", v.reason, 15); y += 5;
 
-                    doc.setFont("times", "bold");
-                    doc.text("Données Fondamentales", 15, y);
-                    doc.line(15, y+2, 80, y+2);
-                    y += 8;
-                    
-                    addLine("ATCD :", v.history);
-                    addLine("Allergies :", v.allergies);
+                    doc.setFont("times", "bold"); doc.text("Données Fondamentales", 15, y); doc.line(15, y+2, 80, y+2); y += 8;
+                    addLine("ATCD :", v.history); addLine("Allergies :", v.allergies);
                     
                     let vitals = [];
-                    if(v.weight) vitals.push(`Poids: ${v.weight} kg`);
-                    if(v.height) vitals.push(`Taille: ${v.height} cm`);
-                    if(v.bp) vitals.push(`TA: ${v.bp}`);
-                    if(v.pulse) vitals.push(`Pouls: ${v.pulse} bpm`);
-                    if(v.temp) vitals.push(`Temp: ${v.temp}°C`);
-                    if(v.spo2) vitals.push(`SpO2: ${v.spo2}%`);
-                    
-                    if(vitals.length > 0) {
-                        doc.setFont("times", "normal");
-                        const vitalLines = doc.splitTextToSize(vitals.join("  |  "), 180);
-                        doc.text(vitalLines, 15, y);
-                        y += (vitalLines.length * 6);
-                    }
+                    if(v.weight) vitals.push(`Poids: ${v.weight} kg`); if(v.height) vitals.push(`Taille: ${v.height} cm`); if(v.bp) vitals.push(`TA: ${v.bp}`); if(v.pulse) vitals.push(`Pouls: ${v.pulse} bpm`); if(v.temp) vitals.push(`Temp: ${v.temp}°C`); if(v.spo2) vitals.push(`SpO2: ${v.spo2}%`);
+                    if(vitals.length > 0) { doc.setFont("times", "normal"); const vitalLines = doc.splitTextToSize(vitals.join("  |  "), 180); doc.text(vitalLines, 15, y); y += (vitalLines.length * 6); }
                     y += 5;
 
-                    doc.setFont("times", "bold");
-                    doc.text("Constatations Physiques", 15, y);
-                    doc.line(15, y+2, 80, y+2);
-                    y += 8;
-                    
-                    const examens = [
-                        {k: 'examGeneral', l: 'Plan Général'}, {k: 'examHemo', l: 'Hémodynamique'},
-                        {k: 'examResp', l: 'Respiratoire'}, {k: 'examNeuro', l: 'Neurologique'},
-                        {k: 'examAbdo', l: 'Abdominal'}, {k: 'examOther', l: 'Reste de l\'examen'}
-                    ];
-                    
-                    examens.forEach(e => { if(v[e.k]) addLine(`${e.l} :`, v[e.k]); });
-                    
-                    if(v.examReco) {
-                        y += 2;
-                        addLine("Recommandation :", v.examReco, 15, true);
-                    }
+                    doc.setFont("times", "bold"); doc.text("Constatations Physiques", 15, y); doc.line(15, y+2, 80, y+2); y += 8;
+                    for(let key in EXAM_LABELS) { if(v[key]) addLine(`${EXAM_LABELS[key]} :`, v[key]); }
+                    if(v.examReco) { y += 2; addLine("Recommandation :", v.examReco, 15, true); }
                     y += 5;
 
-                    if(v.prescription && v.prescription.trim() !== '') {
-                        if (y > 250) { doc.addPage(); y = 20; }
-                        doc.setFont("times", "bold");
-                        doc.text("Plan Thérapeutique", 15, y);
-                        doc.line(15, y+2, 80, y+2);
-                        y += 8;
-                        
-                        doc.setFont("times", "normal");
-                        const prescLines = doc.splitTextToSize(v.prescription, 180);
-                        doc.text(prescLines, 15, y);
-                        y += (prescLines.length * 6) + 10;
+                    if(v.prescription) {
+                        doc.setFont("times", "bold"); doc.text("Plan Thérapeutique / Ordonnance", 15, y); doc.line(15, y+2, 85, y+2); y += 8;
+                        doc.setFont("times", "normal"); const prescLines = doc.splitTextToSize(v.prescription, 180); doc.text(prescLines, 15, y); y += (prescLines.length * 6) + 10;
                     }
 
                     if (y > 240) { doc.addPage(); y = 30; }
+                    doc.setFont("times", "bold"); doc.text("Signature et Cachet :", 195, y, { align: "right" }); y += 5;
+                    if(sigBase) { const sigH = this.drawProportionalImage(doc, sigBase, 195, y, 45, 30, "right"); y += sigH + 5; } else y += 15;
+                    doc.setFont("times", "normal"); doc.text(this.doctorName, 195, y, { align: "right" });
 
-                    doc.setFont("times", "bold");
-                    doc.text("Signature et Cachet :", 195, y, { align: "right" });
-                    y += 5;
-                    
-                    if(sigBase) {
-                        const sigH = this.drawProportionalImage(doc, sigBase, 195, y, 45, 30, "right");
-                        y += sigH + 5;
-                    } else {
-                        y += 15;
-                    }
-                    
-                    doc.setFont("times", "normal");
-                    doc.text(this.doctorName, 195, y, { align: "right" });
-
-                    this.pendingPDF.blob = doc.output('blob');
-                    this.pendingPDF.filename = `Rapport_Medical_${(v.name||'Patient').replace(/\s+/g, '_')}_${vDate.toLocaleDateString('fr-FR').replace(/\//g, '-')}.pdf`;
+                    this.pendingPDF.blob = doc.output('blob'); this.pendingPDF.filename = `Rapport_Medical_${(v.name||'Patient').replace(/\s+/g, '_')}.pdf`;
                     document.getElementById('save-pdf-modal').classList.remove('hidden');
-
-                } catch(err) {
-                    alert("Erreur d'impression du rapport patient : " + err.message);
-                } finally { 
-                    if (buttonElement) buttonElement.innerText = btnText; 
-                }
+                } catch(err) { alert("Erreur."); } finally { if (buttonElement) buttonElement.innerText = btnText; }
             },
 
             renderDashboard(fStr = '') {
-                const list = document.getElementById('visits-list'); list.innerHTML = '';
-                const searchStr = fStr.trim().toLowerCase();
-                const filtered = this.visits.filter(v => `${v.name} ${v.reason} ${v.docNum||''}`.toLowerCase().includes(searchStr));
-                if (filtered.length === 0) return list.innerHTML = `<p style="text-align:center; padding:2rem; color:#666;">Aucun résultat.</p>`; 
-
-                const pMap = {};
-                filtered.forEach(v => {
-                    const key = v.name.trim().toLowerCase();
-                    if (!pMap[key]) pMap[key] = { name: v.name.trim(), phone: v.phone || '', age: v.age || '', visits: [] };
-                    pMap[key].visits.push(v);
-                });
-
-                const sortedPatients = Object.values(pMap).sort((a,b) => Math.max(...b.visits.map(v=>(new Date(v.date).getTime()||0))) - Math.max(...a.visits.map(v=>(new Date(v.date).getTime()||0))));
+                const list = document.getElementById('visits-list'); list.innerHTML = ''; const searchStr = fStr.trim().toLowerCase();
+                const filtered = this.visits.filter(v => `${v.name} ${v.reason} ${v.docNum||''} ${v.gdp||''}`.toLowerCase().includes(searchStr));
+                if (filtered.length === 0) return list.innerHTML = `<p style="text-align:center; padding:2rem; color:#666;">Aucune fiche trouvée.</p>`; 
+                const pMap = {}; filtered.forEach(v => { const key = v.name.trim().toLowerCase(); if (!pMap[key]) pMap[key] = { name: v.name.trim(), phone: v.phone || '', age: v.age || '', visits: [] }; pMap[key].visits.push(v); });
+                const sortedPatients = Object.values(pMap).sort((a,b) => Math.max(...b.visits.map(v=>new Date(v.date))) - Math.max(...a.visits.map(v=>(new Date(v.date)))));
                 
-                const isSearching = searchStr.length > 0;
-                const maxDisplay = isSearching ? sortedPatients.length : 10;
-                const patientsToDisplay = sortedPatients.slice(0, maxDisplay);
-
-                if (!isSearching && sortedPatients.length > 10) {
-                    list.innerHTML = `<div style="background: #e3f2fd; color: #1565c0; padding: 10px; border-radius: var(--radius); text-align: center; margin-bottom: 15px; font-size: 0.9rem; border: 1px solid #90caf9;">📌 Affichage des 10 patients récents. Cherchez pour voir la suite.</div>`;
-                } else if (isSearching) {
-                    list.innerHTML = `<div style="text-align: right; margin-bottom: 10px; font-size: 0.85rem; color: var(--text-muted);">🔍 ${sortedPatients.length} patient(s) trouvé(s)</div>`;
-                }
-
-                patientsToDisplay.forEach((p, idx) => {
-                    p.visits.sort((a,b) => (new Date(b.date).getTime()||0) - (new Date(a.date).getTime()||0));
-                    let vHtml = '';
+                sortedPatients.slice(0, 10).forEach((p, idx) => {
+                    p.visits.sort((a,b) => new Date(b.date) - new Date(a.date)); let vHtml = '';
                     p.visits.forEach(v => {
-                        const fee = parseFloat(v.fee) || 0; let vDate = new Date(v.date); if(isNaN(vDate.getTime())) vDate = new Date();
-                        vHtml += `<div class="consultation-item"><div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:5px;"><strong style="color:var(--primary-color); font-size:0.95rem;">${vDate.toLocaleDateString('fr-FR')} à ${vDate.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})}</strong><span style="font-size:0.85rem; font-weight:bold; color:var(--success-color);">${fee>0?fee.toFixed(3)+' DT':'-'}</span></div><p style="font-size:0.9rem; margin-bottom:10px;"><strong>Motif :</strong> ${v.reason}</p><div style="display:flex; gap:8px;"><button type="button" class="btn btn-outline" style="flex:1; padding:6px; background:white;" onclick="app.generatePDF('${v.id}', this)">📄 PDF</button><button type="button" class="btn btn-outline" style="flex:1; padding:6px; background:white;" onclick="app.showForm('${v.id}')">✏️ Ouvrir</button><button type="button" class="btn btn-danger" style="flex:1; padding:6px;" onclick="app.deleteVisit('${v.id}')">🗑️</button></div></div>`;
+                        let fee = parseFloat(v.fee) || 0; let franchise = parseFloat(v.franchise) || 0; let net = (v.coverage === 'Avec Franchise') ? (fee - franchise) : fee;
+                        let vDate = new Date(v.date); if(isNaN(vDate.getTime())) vDate = new Date();
+                        vHtml += `<div class="consultation-item"><div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:5px;"><strong style="color:var(--primary-color); font-size:0.95rem;">${vDate.toLocaleDateString('fr-FR')} à ${vDate.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})}</strong><span style="font-size:0.85rem; font-weight:bold; color:var(--success-color);">${net>0?net.toFixed(3)+' DT':'-'}</span></div><p style="font-size:0.9rem; margin-bottom:10px;"><strong>Motif :</strong> ${v.reason}</p><div style="display:flex; gap:5px;"><button type="button" class="btn btn-outline" style="flex:1.2; padding:6px; background:white; font-size:0.8rem;" onclick="app.generatePDF('${v.id}', this)">📄 Médical</button><button type="button" class="btn btn-outline" style="flex:1.2; padding:6px; background:white; font-size:0.8rem;" onclick="app.generateNoteHonoraire('${v.id}', this)">📄 Honoraire</button><button type="button" class="btn btn-outline" style="flex:0.6; padding:6px; background:white;" onclick="app.showForm('${v.id}')">✏️</button><button type="button" class="btn btn-danger" style="flex:0.5; padding:6px;" onclick="app.deleteVisit('${v.id}')">🗑️</button></div></div>`;
                     });
                     const sId = 'patient-acc-' + idx;
-                    list.innerHTML += `<div class="patient-card"><div class="patient-card-header" onclick="app.toggleAccordion('${sId}')"><div><h3 style="font-size: 1.1rem; margin:0; color:var(--secondary-color);">👤 ${p.name}</h3><span style="font-size:0.85rem; color:#666;">${p.age ? p.age + ' • ' : ''} ${p.visits.length} acte(s)</span></div><span id="icon-${sId}" style="color:var(--primary-color);">▼</span></div><div id="${sId}" class="patient-history-drawer"><button class="btn btn-success" style="width:100%; margin-bottom:15px;" onclick="app.newVisitForPatient('${p.name}')">➕ Ajouter un acte de suivi</button>${vHtml}</div></div>`;
+                    list.innerHTML += `<div class="patient-card"><div class="patient-card-header" onclick="app.toggleAccordion('${sId}')"><div><h3 style="font-size: 1.1rem; margin:0; color:var(--secondary-color);">👤 ${p.name}</h3><span style="font-size:0.85rem; color:#666;">${p.age ? p.age + ' • ' : ''} ${p.visits.length} dossier(s)</span></div><span id="icon-${sId}" style="color:var(--primary-color);">▼</span></div><div id="${sId}" class="patient-history-drawer"><button class="btn btn-success" style="width:100%; margin-bottom:15px;" onclick="app.newVisitForPatient('${p.name}')">➕ Ajouter une consultation de suivi</button>${vHtml}</div></div>`;
                 });
             }
         };
