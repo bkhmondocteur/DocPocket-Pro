@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.example.docpocketpro2",
+    "sha256_cert_fingerprints": ["A3:5D:E0:2A:6F:8A:90:75:F2:72:77:0C:23:19:D9:AB:D9:49:11:FE:9D:0A:FB:47:0C:55:87:F7:77:6E:3C:82"]
+  }
+}]
