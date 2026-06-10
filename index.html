@@ -318,7 +318,7 @@
                         
                         <div class="grid-2" style="border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 10px;">
                             <div class="form-group">
-                                <label>Honoraires de base (HCV) - Hors Taxe (HT)</label>
+                                <label>Honoraires de base (Visite Médicale) - HT</label>
                                 <input type="number" id="visit-fee" class="form-control" step="any" value="90.000">
                             </div>
                             <div class="form-group">
@@ -734,7 +734,7 @@
                     doc.setFont("times", "bold"); doc.text("Facturation Détaillée", 15, y); doc.line(15, y+2, 70, y+2); y += 10;
                     
                     let baseHT = parseFloat(v.fee) || 0; let tvaRate = parseFloat(v.tva) || 7; let franchiseTTC = parseFloat(v.franchise) || 0;
-                    let tableData = [['Consultation (HCV)', baseHT.toFixed(3) + ' DT']]; let totalHT = baseHT;
+                    let tableData = [['Visite Médicale', baseHT.toFixed(3) + ' DT']]; let totalHT = baseHT;
 
                     if (v.actInjection) { let actTotal = PRIX_INJECTION_HT * v.qtyInjection; tableData.push([`Injections (x${v.qtyInjection})`, actTotal.toFixed(3) + ' DT']); totalHT += actTotal; }
                     if (v.actSuture) { let actTotal = PRIX_SUTURE_HT * v.qtySuture; tableData.push([`Sutures (x${v.qtySuture})`, actTotal.toFixed(3) + ' DT']); totalHT += actTotal; }
@@ -763,7 +763,15 @@
                     }
 
                     doc.setFont("times", "bold"); doc.setFontSize(14); doc.text(`NET À FACTURER : ${netAssurance.toFixed(3)} DT`, 195, y, { align: "right" });
-                    y += 15; doc.setFont("times", "bold"); doc.setFontSize(13); doc.text("Cachet et Autorité Médicale :", 195, y, { align: "right" }); y += 5;
+                    y += 10;
+
+                    if (v.coverage === 'Payant') {
+                        doc.setFont("times", "italic"); doc.setFontSize(11);
+                        doc.text("Le montant total de la visite a été intégralement payé par le patient.", 195, y, { align: "right" });
+                        y += 8;
+                    }
+
+                    y += 5; doc.setFont("times", "bold"); doc.setFontSize(13); doc.text("Cachet et Autorité Médicale :", 195, y, { align: "right" }); y += 5;
                     if(sigBase) { const sigH = this.drawProportionalImage(doc, sigBase, 195, y, 45, 30, "right"); y += sigH + 5; } else y += 15;
                     doc.setFont("times", "normal"); doc.text(this.doctorName, 195, y, { align: "right" });
 
@@ -834,7 +842,7 @@
                         let vDate = new Date(v.date);
                         let baseHT = parseFloat(v.fee) || 0; let tvaRate = parseFloat(v.tva) || 7; let franchiseTTC = parseFloat(v.franchise) || 0;
                         let totalHT = baseHT;
-                        let details = ["HCV"];
+                        let details = ["Visite Méd."];
                         
                         if (v.actInjection) { totalHT += PRIX_INJECTION_HT * v.qtyInjection; details.push(`Inj x${v.qtyInjection}`); }
                         if (v.actSuture) { totalHT += PRIX_SUTURE_HT * v.qtySuture; details.push(`Sut x${v.qtySuture}`); }
@@ -894,12 +902,12 @@
                                 doc.text(`JUSTIFICATIF DE DOSSIER - ACTE DU ${vDate.toLocaleDateString('fr-FR')}`, 105, 15, { align: "center" });
                                 this.drawProportionalImage(doc, gdpImage, 105, 25, 180, 250, "center");
                             }
-                        } catch(errGdp) { console.error("Erreur GDP"); }
+                        } catch(errGdp) { console.error("Erreur GDP sur visite " + v.id); }
                     }
 
                     this.pendingPDF.blob = doc.output('blob'); this.pendingPDF.filename = `Note_Globale_${this.currentGroupedPatient.replace(/\s+/g, '_')}.pdf`;
                     document.getElementById('save-pdf-modal').classList.remove('hidden');
-                } catch(err) { alert("Erreur de génération globale."); }
+                } catch(err) { alert("Erreur de génération globale."); console.error(err); }
             },
 
             // JOURNAL MENSUEL DES RECEPTIONS NETTES
@@ -949,7 +957,7 @@
                 } catch(err) { alert("Erreur."); } finally { if (event && event.target) event.target.innerText = btnText; }
             },
 
-            // RAPPORT MEDICAL CLINIQUE TRADITIONNEL
+            // RAPPORT MEDICAL CLINIQUE TRADITIONNEL (TAILLE 13)
             async generatePDF(id, buttonElement) {
                 const v = this.visits.find(x => x.id === id); if (!v) return; let vDate = new Date(v.date); if(isNaN(vDate.getTime())) vDate = new Date();
                 let btnText = "📄 Médical"; if (buttonElement) { btnText = buttonElement.innerText; buttonElement.innerText = "⏳..."; }
@@ -1036,4 +1044,3 @@
     </script>
 </body>
 </html>
-
