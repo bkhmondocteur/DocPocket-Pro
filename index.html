@@ -460,6 +460,38 @@
                 this.renderDashboard(); document.getElementById('search-input').addEventListener('input', (e) => this.renderDashboard(e.target.value.toLowerCase()));
             },
 
+            // FONCTION DE COMPRESSION JS A LA VOLEE (CANVAS)
+            async compressImage(file, maxWidth = 1200, quality = 0.7) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = (event) => {
+                        const img = new Image();
+                        img.src = event.target.result;
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            let width = img.width;
+                            let height = img.height;
+
+                            if (width > maxWidth) {
+                                height = Math.round((height * maxWidth) / width);
+                                width = maxWidth;
+                            }
+
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, width, height);
+
+                            const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+                            resolve(compressedBase64);
+                        };
+                        img.onerror = (err) => reject(err);
+                    };
+                    reader.onerror = (err) => reject(err);
+                });
+            },
+
             toggleFranchise() {
                 const cov = document.getElementById('visit-coverage').value;
                 document.getElementById('franchise-box').classList.toggle('hidden', cov !== 'Avec Franchise');
@@ -472,11 +504,19 @@
                 } catch(e) {}
             },
 
-            handleImageUpload(event, storageKey, successMsg) {
-                const file = event.target.files[0]; if (!file) return; const reader = new FileReader();
-                reader.onload = async (e) => { await localforage.setItem(storageKey, e.target.result); await this.loadCustomImages(); alert("✅ " + successMsg); };
-                reader.readAsDataURL(file); event.target.value = '';
+            async handleImageUpload(event, storageKey, successMsg) {
+                const file = event.target.files[0]; if (!file) return;
+                try {
+                    const compressedBase64 = await this.compressImage(file, 800, 0.8);
+                    await localforage.setItem(storageKey, compressedBase64); 
+                    await this.loadCustomImages(); 
+                    alert("✅ " + successMsg);
+                } catch(e) {
+                    alert("Erreur lors de l'importation de l'image.");
+                }
+                event.target.value = '';
             },
+
             async removeImage(storageKey, confirmMsg) { if(confirm(confirmMsg)) { await localforage.removeItem(storageKey); await this.loadCustomImages(); } },
             
             async purgeCacheAndReload() { window.location.reload(true); },
@@ -526,27 +566,46 @@
                 }
             },
 
-            // SELECTION PHOTO DOCUMENT DE DOSSIER 
-            handleGdpUpload(event) {
-                const file = event.target.files[0]; if (!file) return; const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.tempGdpBase64 = e.target.result;
-                    document.getElementById('gdp-preview-img').src = this.tempGdpBase64;
-                    document.getElementById('gdp-preview-container').classList.remove('hidden');
-                }; reader.readAsDataURL(file); event.target.value = '';
+            // SELECTION PHOTO DOCUMENT DE DOSSIER (AVEC COMPRESSION)
+            async handleGdpUpload(event) {
+                const file = event.target.files[0]; if (!file) return; 
+                try {
+                    if (file.type.startsWith('image/')) {
+                        this.tempGdpBase64 = await this.compressImage(file);
+                        document.getElementById('gdp-preview-img').src = this.tempGdpBase64;
+                        document.getElementById('gdp-preview-container').classList.remove('hidden');
+                    } else {
+                        alert("Le justificatif doit être une image.");
+                    }
+                } catch(e) { console.error(e); alert("Erreur lors de la compression."); }
+                event.target.value = '';
             },
             removeGdpImage() { this.tempGdpBase64 = ""; document.getElementById('gdp-preview-container').classList.add('hidden'); document.getElementById('gdp-preview-img').src = ""; },
 
-            // EXPLORATIONS CLINIQUES
-            handleCameraInput(event) {
-                const file = event.target.files[0]; if (!file) return; const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.tempScanBase64 = e.target.result; this.tempScanType = file.type;
-                    const img = document.getElementById('scanner-preview'); const pdfBtn = document.getElementById('scanner-preview-pdf-btn');
-                    if (file.type === 'application/pdf') { img.classList.add('hidden'); pdfBtn.classList.remove('hidden'); } 
-                    else { pdfBtn.classList.add('hidden'); img.classList.remove('hidden'); img.src = this.tempScanBase64; }
-                    document.getElementById('scanner-preview-section').classList.remove('hidden'); document.getElementById('scan-name').focus();
-                }; reader.readAsDataURL(file); event.target.value = ''; 
+            // EXPLORATIONS CLINIQUES (AVEC COMPRESSION POUR LES IMAGES)
+            async handleCameraInput(event) {
+                const file = event.target.files[0]; if (!file) return; 
+                this.tempScanType = file.type;
+                const img = document.getElementById('scanner-preview'); const pdfBtn = document.getElementById('scanner-preview-pdf-btn');
+                
+                try {
+                    if (file.type === 'application/pdf') { 
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            this.tempScanBase64 = e.target.result;
+                            img.classList.add('hidden'); pdfBtn.classList.remove('hidden');
+                            document.getElementById('scanner-preview-section').classList.remove('hidden'); 
+                            document.getElementById('scan-name').focus();
+                        };
+                        reader.readAsDataURL(file);
+                    } else { 
+                        this.tempScanBase64 = await this.compressImage(file);
+                        pdfBtn.classList.add('hidden'); img.classList.remove('hidden'); img.src = this.tempScanBase64; 
+                        document.getElementById('scanner-preview-section').classList.remove('hidden'); 
+                        document.getElementById('scan-name').focus();
+                    }
+                } catch(e) { alert("Erreur de compression."); }
+                event.target.value = ''; 
             },
             cancelScan() { this.tempScanBase64 = ""; document.getElementById('scan-name').value = ""; document.getElementById('scanner-preview-section').classList.add('hidden'); },
             saveScan() {
