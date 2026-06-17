@@ -265,6 +265,7 @@
                     <section class="form-section">
                         <h2>Clinique & Terrain</h2>
                         <div class="form-group"><label>Motif de consultation *</label><input type="text" id="visit-reason" class="form-control" required></div>
+                        <div class="form-group"><label>Histoire de la maladie</label><textarea id="history-illness" class="form-control" style="min-height: 80px;"></textarea></div>
                         <div class="grid-2"><div class="form-group"><label>Antécédents (ATCD)</label><textarea id="medical-history" class="form-control"></textarea></div><div class="form-group"><label>Allergies & Intolérances</label><textarea id="allergies" class="form-control"></textarea></div></div>
                     </section>
 
@@ -375,7 +376,7 @@
         const FIELDS = {
             id: 'visit-id', name: 'patient-name', origin: 'patient-origin', docType: 'patient-doc-type', docNum: 'patient-doc-num', gdp: 'visit-gdp', 
             coverage: 'visit-coverage', franchise: 'visit-franchise', fee: 'visit-fee', tva: 'visit-tva',
-            dob: 'patient-dob', age: 'patient-age', phone: 'patient-phone', reason: 'visit-reason', history: 'medical-history',
+            dob: 'patient-dob', age: 'patient-age', phone: 'patient-phone', reason: 'visit-reason', historyIllness: 'history-illness', history: 'medical-history',
             allergies: 'allergies', weight: 'vital-weight', height: 'vital-height', bp: 'vital-bp', pulse: 'vital-pulse', 
             temp: 'vital-temp', spo2: 'vital-spo2', examGeneral: 'exam-general', examHemo: 'exam-hemo', examResp: 'exam-resp', 
             examNeuro: 'exam-neuro', examAbdo: 'exam-abdo', examOther: 'exam-other', examReco: 'exam-reco', prescription: 'prescription'
@@ -1042,7 +1043,9 @@
                     doc.setFontSize(13);
                     addLine("Nom Patient :", v.name, 15, true); doc.setFont("times", "bold"); doc.text("Âge :", 120, y - 6); doc.setFont("times", "normal"); doc.text(v.age || '-', 135, y - 6); y += 2;
                     addLine("Identifiant :", `${v.docType || 'Passeport'} : ${v.docNum || '-'}`, 15); doc.setFont("times", "bold"); doc.text("N° Dossier :", 120, y - 6); doc.setFont("times", "normal"); doc.text(v.gdp || 'N/A', 145, y - 6); y += 2;
-                    addLine("Motif :", v.reason, 15); y += 5;
+                    addLine("Motif :", v.reason, 15); 
+                    if (v.historyIllness) { y += 2; addLine("Histoire de la maladie :", v.historyIllness, 15); }
+                    y += 5;
 
                     doc.setFont("times", "bold"); doc.text("Données Fondamentales", 15, y); doc.line(15, y+2, 80, y+2); y += 8;
                     addLine("ATCD :", v.history); addLine("Allergies :", v.allergies);
