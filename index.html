@@ -66,8 +66,11 @@
         .form-control { padding: 0.6rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.95rem; background-color: #fafafa; width: 100%; box-sizing: border-box; }
         textarea.form-control { resize: vertical; min-height: 60px; }
         .dashboard-controls { display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1.5rem; }
-        .visits-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 2rem; }
+        .visits-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 1rem; }
         
+        .pagination-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; background: white; padding: 10px; border-radius: var(--radius); box-shadow: var(--shadow); }
+        .pagination-controls .btn { width: auto; padding: 0.4rem 1rem; }
+
         .patient-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); border-left: 5px solid var(--primary-color); overflow: hidden; margin-bottom: 15px; }
         .patient-card-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #fff; transition: background 0.2s; }
         .patient-card-header:hover { background: #f0f4f8; }
@@ -182,6 +185,12 @@
                 </div>
                 
                 <div id="visits-list" class="visits-grid"></div>
+
+                <div id="pagination-container" class="pagination-controls hidden">
+                    <button id="btn-prev-page" class="btn btn-outline" onclick="app.prevPage()">⬅️ Précédent</button>
+                    <span id="pagination-info" style="font-weight:bold; color:var(--secondary-color);">Page 1</span>
+                    <button id="btn-next-page" class="btn btn-outline" onclick="app.nextPage()">Suivant ➡️</button>
+                </div>
 
                 <div class="backup-panel">
                     <div><strong>🎨 En-tête & Cachet Médical</strong><p>Configurez vos signatures.</p></div>
@@ -450,6 +459,7 @@
         const app = {
             visits: [], currentScans: [], tempScanBase64: "", tempScanType: "", tempGdpBase64: "", STORAGE_KEY: 'docpocket_visits_data_v2', doctorName: '', currentPin: '',
             pendingPDF: { blob: null, filename: "" }, currentGroupedPatient: "",
+            currentPage: 1, itemsPerPage: 10, currentSearchQuery: "",
 
             async init() {
                 this.doctorName = localStorage.getItem('docpocket_doc_name') || 'Dr';
@@ -458,7 +468,9 @@
                 localforage.config({ name: 'DocPocketPro', storeName: 'dossiers_scans' });
                 await this.loadCustomImages();
                 if (window.isSecureContext && window.PublicKeyCredential) document.getElementById('btn-activate-bio').classList.remove('hidden');
-                this.renderDashboard(); document.getElementById('search-input').addEventListener('input', (e) => this.renderDashboard(e.target.value.toLowerCase()));
+                this.currentPage = 1;
+                this.renderDashboard(); 
+                document.getElementById('search-input').addEventListener('input', (e) => this.renderDashboard(e.target.value.toLowerCase()));
             },
 
             // FONCTION DE COMPRESSION JS A LA VOLEE (CANVAS)
@@ -770,7 +782,7 @@
                 }
             },
 
-            // NOTE D'HONORAIRES INDIVIDUELLE (AVEC IMAGE DOSSIER EN PAGE 2)
+            // NOTE D'HONORAIRES INDIVIDUELLE
             async generateNoteHonoraire(id, buttonElement) {
                 const v = this.visits.find(x => x.id === id); if (!v) return; let vDate = new Date(v.date); if(isNaN(vDate.getTime())) vDate = new Date();
                 let btnText = "📄 H. Unique"; if (buttonElement) { btnText = buttonElement.innerText; buttonElement.innerText = "⏳..."; }
@@ -1075,14 +1087,49 @@
                 } catch(err) { alert("Erreur."); } finally { if (buttonElement) buttonElement.innerText = btnText; }
             },
 
-            renderDashboard(fStr = '') {
-                const list = document.getElementById('visits-list'); list.innerHTML = ''; const searchStr = fStr.trim().toLowerCase();
+            prevPage() {
+                if (this.currentPage > 1) {
+                    this.currentPage--;
+                    this.renderDashboard();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            },
+            
+            nextPage() {
+                this.currentPage++;
+                this.renderDashboard();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            },
+
+            renderDashboard(fStr = null) {
+                if (fStr !== null) {
+                    this.currentSearchQuery = fStr.trim().toLowerCase();
+                    this.currentPage = 1; // Retour en page 1 pour chaque nouvelle recherche
+                }
+                const searchStr = this.currentSearchQuery;
+                const list = document.getElementById('visits-list'); list.innerHTML = ''; 
+                const pagContainer = document.getElementById('pagination-container');
+
                 const filtered = this.visits.filter(v => `${v.name} ${v.reason} ${v.docNum||''} ${v.gdp||''}`.toLowerCase().includes(searchStr));
-                if (filtered.length === 0) return list.innerHTML = `<p style="text-align:center; padding:2rem; color:#666;">Aucune fiche.</p>`; 
+                if (filtered.length === 0) {
+                    pagContainer.classList.add('hidden');
+                    return list.innerHTML = `<p style="text-align:center; padding:2rem; color:#666;">Aucune fiche.</p>`; 
+                }
+                
                 const pMap = {}; filtered.forEach(v => { const key = v.name.trim().toLowerCase(); if (!pMap[key]) pMap[key] = { name: v.name.trim(), phone: v.phone || '', age: v.age || '', visits: [] }; pMap[key].visits.push(v); });
                 const sortedPatients = Object.values(pMap).sort((a,b) => Math.max(...b.visits.map(v=>new Date(v.date))) - Math.max(...a.visits.map(v=>(new Date(v.date)))));
                 
-                sortedPatients.slice(0, 10).forEach((p, idx) => {
+                // MOTEUR DE PAGINATION STRICTE
+                const totalItems = sortedPatients.length;
+                const totalPages = Math.ceil(totalItems / this.itemsPerPage);
+                if (this.currentPage > totalPages) this.currentPage = totalPages;
+                if (this.currentPage < 1) this.currentPage = 1;
+                
+                const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+                const endIndex = startIndex + this.itemsPerPage;
+                const patientsToRender = sortedPatients.slice(startIndex, endIndex);
+
+                patientsToRender.forEach((p, idx) => {
                     p.visits.sort((a,b) => new Date(b.date) - new Date(a.date)); let vHtml = '';
                     p.visits.forEach(v => {
                         let baseHT = parseFloat(v.fee) || 0; let tvaRate = parseFloat(v.tva) || 7; let franchiseTTC = parseFloat(v.franchise) || 0;
@@ -1094,15 +1141,4 @@
                         let totalTTC = totalHT * (1 + (tvaRate/100));
                         let net = (v.coverage === 'Avec Franchise') ? (totalTTC - franchiseTTC) : (v.coverage === 'Payant' ? 0 : totalTTC);
                         let vDate = new Date(v.date); if(isNaN(vDate.getTime())) vDate = new Date();
-                        vHtml += `<div class="consultation-item"><div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:5px;"><strong style="color:var(--primary-color); font-size:0.95rem;">${vDate.toLocaleDateString('fr-FR')} à ${vDate.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})}</strong><span style="font-size:0.85rem; font-weight:bold; color:var(--success-color);">${net>0?net.toFixed(3)+' DT':'-'}</span></div><p style="font-size:0.9rem; margin-bottom:10px;"><strong>Motif :</strong> ${v.reason}</p><div style="display:flex; gap:5px;"><button type="button" class="btn btn-outline" style="flex:1.2; padding:6px; background:white; font-size:0.8rem;" onclick="app.generatePDF('${v.id}', this)">📄 Médical</button><button type="button" class="btn btn-outline" style="flex:1.2; padding:6px; background:white; font-size:0.8rem;" onclick="app.generateNoteHonoraire('${v.id}', this)">📄 H. Unique</button><button type="button" class="btn btn-outline" style="flex:0.6; padding:6px; background:white;" onclick="app.showForm('${v.id}')">✏️</button><button type="button" class="btn btn-danger" style="flex:0.5; padding:6px;" onclick="app.deleteVisit('${v.id}')">🗑️</button></div></div>`;
-                    });
-                    const sId = 'patient-acc-' + idx;
-                    list.innerHTML += `<div class="patient-card"><div class="patient-card-header" onclick="app.toggleAccordion('${sId}')"><div><h3 style="font-size: 1.1rem; margin:0; color:var(--secondary-color);">👤 ${p.name}</h3><span style="font-size:0.85rem; color:#666;">${p.age ? p.age + ' • ' : ''} ${p.visits.length} dossier(s)</span></div><span id="icon-${sId}" style="color:var(--primary-color);">▼</span></div><div id="${sId}" class="patient-history-drawer"><div style="display:flex; gap:10px; margin-bottom:15px;"><button class="btn btn-success" style="flex:1;" onclick="app.newVisitForPatient('${p.name}')">➕ Ajouter Suivi</button><button class="btn btn-outline" style="flex:1; background:white;" onclick="app.generateGroupedNote('${p.name.replace(/'/g, "\\'")}')">📄 Note Globale</button></div>${vHtml}</div></div>`;
-                });
-            }
-        };
-
-        window.addEventListener('DOMContentLoaded', () => auth.init());
-    </script>
-</body>
-</html>
+                        vHtml += `<div class="consultation-item"><div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:5px;"><strong style="color:var(--primary-color); font-size:0.95rem;">${vDate.toLocaleDateString('fr-FR')} à ${vDate.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})}</strong><span style="font-size:0.85rem; font-weight:bold; color:var(--success-color);">${net>0?net.toFixed(3)+' DT':'-'}</span></div><p style="font-size:0.9rem; margin-bottom:10px;"><strong>Motif :</strong> ${v.reason}</p><div style="display:flex; gap:5px;"><button type="button" class="btn btn-outline" style="flex:1.2; padding:6px; background:white; font-size:0.8rem;" onclick="app.generatePDF('${v.id}', this)">📄 Médical</button><button type="button" class="btn btn-outline" style="
