@@ -1141,4 +1141,25 @@
                         let totalTTC = totalHT * (1 + (tvaRate/100));
                         let net = (v.coverage === 'Avec Franchise') ? (totalTTC - franchiseTTC) : (v.coverage === 'Payant' ? 0 : totalTTC);
                         let vDate = new Date(v.date); if(isNaN(vDate.getTime())) vDate = new Date();
-                        vHtml += `<div class="consultation-item"><div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:5px;"><strong style="color:var(--primary-color); font-size:0.95rem;">${vDate.toLocaleDateString('fr-FR')} à ${vDate.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})}</strong><span style="font-size:0.85rem; font-weight:bold; color:var(--success-color);">${net>0?net.toFixed(3)+' DT':'-'}</span></div><p style="font-size:0.9rem; margin-bottom:10px;"><strong>Motif :</strong> ${v.reason}</p><div style="display:flex; gap:5px;"><button type="button" class="btn btn-outline" style="flex:1.2; padding:6px; background:white; font-size:0.8rem;" onclick="app.generatePDF('${v.id}', this)">📄 Médical</button><button type="button" class="btn btn-outline" style="
+                        vHtml += `<div class="consultation-item"><div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:5px;"><strong style="color:var(--primary-color); font-size:0.95rem;">${vDate.toLocaleDateString('fr-FR')} à ${vDate.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})}</strong><span style="font-size:0.85rem; font-weight:bold; color:var(--success-color);">${net>0?net.toFixed(3)+' DT':'-'}</span></div><p style="font-size:0.9rem; margin-bottom:10px;"><strong>Motif :</strong> ${v.reason}</p><div style="display:flex; gap:5px;"><button type="button" class="btn btn-outline" style="flex:1.2; padding:6px; background:white; font-size:0.8rem;" onclick="app.generatePDF('${v.id}', this)">📄 Médical</button><button type="button" class="btn btn-outline" style="flex:1.2; padding:6px; background:white; font-size:0.8rem;" onclick="app.generateNoteHonoraire('${v.id}', this)">📄 H. Unique</button><button type="button" class="btn btn-outline" style="flex:0.6; padding:6px; background:white;" onclick="app.showForm('${v.id}')">✏️</button><button type="button" class="btn btn-danger" style="flex:0.5; padding:6px;" onclick="app.deleteVisit('${v.id}')">🗑️</button></div></div>`;
+                    });
+                    const sId = 'patient-acc-' + idx;
+                    list.innerHTML += `<div class="patient-card"><div class="patient-card-header" onclick="app.toggleAccordion('${sId}')"><div><h3 style="font-size: 1.1rem; margin:0; color:var(--secondary-color);">👤 ${p.name}</h3><span style="font-size:0.85rem; color:#666;">${p.age ? p.age + ' • ' : ''} ${p.visits.length} dossier(s)</span></div><span id="icon-${sId}" style="color:var(--primary-color);">▼</span></div><div id="${sId}" class="patient-history-drawer"><div style="display:flex; gap:10px; margin-bottom:15px;"><button class="btn btn-success" style="flex:1;" onclick="app.newVisitForPatient('${p.name}')">➕ Ajouter Suivi</button><button class="btn btn-outline" style="flex:1; background:white;" onclick="app.generateGroupedNote('${p.name.replace(/'/g, "\\'")}')">📄 Note Globale</button></div>${vHtml}</div></div>`;
+                });
+
+                // AFFICHAGE ET GESTION DES BOUTONS DE PAGINATION
+                if (totalPages > 1) {
+                    pagContainer.classList.remove('hidden');
+                    document.getElementById('pagination-info').innerText = `Page ${this.currentPage} sur ${totalPages}`;
+                    document.getElementById('btn-prev-page').style.visibility = (this.currentPage === 1) ? 'hidden' : 'visible';
+                    document.getElementById('btn-next-page').style.visibility = (this.currentPage === totalPages) ? 'hidden' : 'visible';
+                } else {
+                    pagContainer.classList.add('hidden');
+                }
+            }
+        };
+
+        window.addEventListener('DOMContentLoaded', () => auth.init());
+    </script>
+</body>
+</html>
